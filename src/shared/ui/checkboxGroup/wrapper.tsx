@@ -26,15 +26,17 @@ export const useCheckboxGroup = () => {
 
 interface WrapperProps extends React.ComponentProps<'div'> {
   name: string;
+  defaultActiveIds?: string[];
 }
 
 export const Wrapper = ({
+  defaultActiveIds = [],
   children,
   className,
   name,
   ...props
 }: WrapperProps) => {
-  const [activeIds, setActiveIds] = useState<string[]>([]);
+  const [activeIds, setActiveIds] = useState<string[]>(defaultActiveIds);
 
   const toggleId = (id: string) => {
     setActiveIds((prev) => {
@@ -47,7 +49,9 @@ export const Wrapper = ({
   };
 
   return (
-    <CheckboxGroupContext.Provider value={{ activeIds, name, toggleId }}>
+    <CheckboxGroupContext.Provider
+      value={{ activeIds, name, toggleId }}
+    >
       <div role="group" className={className} {...props}>
         {children}
       </div>
