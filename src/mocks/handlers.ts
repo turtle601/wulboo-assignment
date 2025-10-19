@@ -58,14 +58,12 @@ export const classesHandlers = [
     }
 
     const response = generateClassListPaginationResponse({
-      page,
-      limit,
       enrollRatioSortBy,
       enrollCountSortBy,
       createdAtSortBy,
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // await new Promise((resolve) => setTimeout(resolve, 300));
 
     return HttpResponse.json(response, { status: 200 });
   }),
