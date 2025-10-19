@@ -7,10 +7,16 @@ interface ButtonProps
   extends Omit<React.ComponentProps<'input'>, 'id' | 'onClick'> {
   id: string;
   onClick: (id: string) => void;
+  drawActiveStyle?: (
+    isChecked: boolean
+  ) => React.ComponentProps<'button'>['className'];
 }
 
 export const Button = forwardRef<HTMLInputElement, ButtonProps>(
-  ({ className, id, onClick, value, ...props }, ref) => {
+  (
+    { id, className, onClick, value, children, drawActiveStyle, ...props },
+    ref
+  ) => {
     const { activeIds, toggleId, name } = useCheckboxGroup();
 
     const isChecked = activeIds.includes(id);
@@ -21,35 +27,7 @@ export const Button = forwardRef<HTMLInputElement, ButtonProps>(
     };
 
     return (
-      <button
-        role="checkbox"
-        aria-checked={isChecked}
-        data-checked={isChecked}
-        className={cn(
-          'w-5 h-5 rounded-md border border-gray-400 cursor-pointer',
-          'transition-all duration-200 flex items-center justify-center',
-          isChecked && 'bg-black border-black',
-          className
-        )}
-        onClick={handleClick}
-      >
-        {isChecked && (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-4 w-4"
-            aria-hidden="true"
-          >
-            <path d="M20 6 9 17l-5-5"></path>
-          </svg>
-        )}
+      <div className="relative flex items-center justify-center">
         <input
           type="checkbox"
           className="sr-only"
@@ -63,7 +41,13 @@ export const Button = forwardRef<HTMLInputElement, ButtonProps>(
           }}
           {...props}
         />
-      </button>
+        <button
+          className={cn(className, drawActiveStyle?.(isChecked))}
+          onClick={handleClick}
+        >
+          {children}
+        </button>
+      </div>
     );
   }
 );
