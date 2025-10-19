@@ -2,13 +2,18 @@
 
 import { useEffect } from 'react';
 
-export function MSWProvider({ children }: { children: React.ReactNode }) {
+export function MSWProvider() {
   useEffect(() => {
-    // 개발 환경에서만 MSW 초기화
-    if (process.env.NODE_ENV === 'development') {
-      import('../../mocks');
+    if (
+      typeof window !== 'undefined' &&
+      process.env.NODE_ENV === 'development'
+    ) {
+      const init = async () => {
+        const { startMSW } = await import('~/src/mocks/browser');
+        await startMSW();
+      };
+      init();
     }
   }, []);
-
-  return <>{children}</>;
+  return null;
 }
