@@ -3,21 +3,21 @@ import { useCheckboxGroup } from '~/src/shared/ui/checkboxGroup/wrapper';
 import { cn } from '~/src/shared/utils/style';
 
 interface IconProps
-  extends Omit<React.ComponentProps<'button'>, 'id' | 'className'> {
+  extends Omit<React.ComponentProps<'div'>, 'id' | 'className'> {
   id: string;
   drawActiveStyle?: (
     isChecked: boolean
   ) => React.ComponentProps<'button'>['className'];
 }
 
-export const Icon = forwardRef<HTMLButtonElement, IconProps>(
+export const Icon = forwardRef<HTMLDivElement, IconProps>(
   ({ id, drawActiveStyle, ...props }, ref) => {
     const { activeIds } = useCheckboxGroup();
 
     const isChecked = activeIds.includes(id);
 
     return (
-      <button
+      <div
         ref={ref}
         role="checkbox"
         aria-checked={isChecked}
@@ -39,16 +39,16 @@ export const Icon = forwardRef<HTMLButtonElement, IconProps>(
               viewBox="0 0 24 24"
               fill="none"
               stroke="white"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               aria-hidden="true"
             >
               <path d="M20 6 9 17l-5-5"></path>
             </svg>
           </div>
         )}
-      </button>
+      </div>
     );
   }
 );
