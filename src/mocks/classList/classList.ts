@@ -1,12 +1,16 @@
 import { classList } from '~/src/mocks/storage';
 
 interface Params {
-  createdAtSortBy: 'new' | 'old';
-  enrollCountSortBy: 'asc' | 'desc';
-  enrollRatioSortBy: 'high' | 'low';
+  limit: number;
+  cursor?: string;
+  createdAtSortBy?: string;
+  enrollCountSortBy?: string;
+  enrollRatioSortBy?: string;
 }
 
 export const generateClassListPaginationResponse = ({
+  limit,
+  cursor,
   enrollRatioSortBy,
   enrollCountSortBy,
   createdAtSortBy,
@@ -22,22 +26,28 @@ export const generateClassListPaginationResponse = ({
   }
 
   if (enrollRatioSortBy === 'high') {
-    sortedClasses.sort((a, b) => b.currentApplicants - a.currentApplicants);
+    sortedClasses.sort((a, b) => b.enrolled / b.total - a.enrolled / a.total);
   }
 
   if (enrollCountSortBy === 'desc') {
-    sortedClasses.sort((a, b) => b.currentApplicants - a.currentApplicants);
+    sortedClasses.sort((a, b) => b.enrolled - a.enrolled);
   }
 
+  let startIndex = 0;
+  if (cursor) {
+    const cursorIndex = sortedClasses.findIndex((item) => item.id === cursor);
+
+    startIndex = cursorIndex >= 0 ? cursorIndex + 1 : 0;
+  }
+
+  const pageData = sortedClasses.slice(startIndex, startIndex + limit);
+  const hasMore = startIndex + limit < sortedClasses.length;
+  const nextCursor = hasMore ? pageData[pageData.length - 1]?.id : null;
+
   return {
-    classes: sortedClasses,
-    // pagination: {
-    //   currentPage: page,
-    //   totalPages: Math.ceil(classList.length / limit),
-    //   totalCount: classList.length,
-    //   hasMore: endIndex < classList.length,
-    //   limit,
-    // },
+    classes: pageData,
+    hasMore,
+    nextCursor,
   };
 };
 

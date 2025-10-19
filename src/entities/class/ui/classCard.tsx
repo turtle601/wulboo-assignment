@@ -1,27 +1,21 @@
+import { ClassType } from '~/src/mocks/storage';
 import { CheckboxGroup } from '~/src/shared/ui/checkboxGroup';
 import { cn } from '~/src/shared/utils/style';
 
-export interface Course {
-  id: string;
-  title: string;
-  price: number;
-  instructor: string;
-  enrolled: number;
-  total: number;
-}
-
 interface ClassCardProps {
-  course: Course;
-  toggleCourse: (course: Course) => void;
+  name: string;
+  course: ClassType;
+  toggleCourse: (course: ClassType) => void;
 }
 
-export function ClassCard({ course, toggleCourse }: ClassCardProps) {
+export function ClassCard({ name, course, toggleCourse }: ClassCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ko-KR').format(price) + '원';
   };
 
   return (
     <CheckboxGroup.Button
+      name={name}
       id={course.id}
       value={course.id}
       drawActiveStyle={(isChecked) => {
@@ -50,7 +44,6 @@ export function ClassCard({ course, toggleCourse }: ClassCardProps) {
           />
         </div>
 
-        {/* Course Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 mb-2">
             <h3 className="text-base font-bold text-gray-900 leading-snug">

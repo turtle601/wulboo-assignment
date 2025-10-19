@@ -27,7 +27,7 @@ export const useCustomSearchParams = () => {
     );
   }, [searchParams]);
 
-  const setSearchParams = (params: {
+  const addSearchParams = (params: {
     [key: string]: string | undefined | null;
   }) => {
     router.push(
@@ -38,8 +38,19 @@ export const useCustomSearchParams = () => {
     );
   };
 
+  const setSearchParams = (params: {
+    [key: string]: string | undefined | null;
+  }) => {
+    router.push(
+      `${pathname}?${getQueryString({
+        ...params,
+      })}`
+    );
+  };
+
   return {
     getSearchParams,
+    addSearchParams,
     getAllSearchParams,
     setSearchParams,
   };

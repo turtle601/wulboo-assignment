@@ -1,12 +1,7 @@
 import { http, HttpResponse, StrictRequest } from 'msw';
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
-import {
-  parseDateSort,
-  parseHighLowSort,
-  parseSortOrder,
-  generateClassListPaginationResponse,
-} from '~/src/mocks/classList/classList';
+import { generateClassListPaginationResponse } from '~/src/mocks/classList/classList';
 
 import { createUser } from '~/src/mocks/user/user';
 
@@ -29,35 +24,26 @@ export const userHandlers = [
 ];
 
 export const classesHandlers = [
-  http.get('*/api/classList*', async ({ request }) => {
+  http.get('/api/classList', async ({ request }) => {
+    console.log('request', request);
     const url = new URL(request.url);
 
-    const page = parseInt(url.searchParams.get('page') || '1');
+    const cursor = url.searchParams.get('cursor') || undefined; // 마지막 항목의 ID
 
     const limit = parseInt(url.searchParams.get('limit') || '10');
 
-    const createdAtSortBy = url.searchParams.get('createdAtSortBy') || 'old'; // old or new
+    const createdAtSortBy =
+      url.searchParams.get('createdAtSortBy') || undefined; // old or new
 
     const enrollRatioSortBy =
-      url.searchParams.get('enrollRatioSortBy') || 'low'; // low or high
+      url.searchParams.get('enrollRatioSortBy') || undefined; // low or high
 
     const enrollCountSortBy =
-      url.searchParams.get('enrollCountSortBy') || 'asc'; // asc or desc
-
-    if (
-      !parseDateSort(createdAtSortBy) ||
-      !parseHighLowSort(enrollRatioSortBy) ||
-      !parseSortOrder(enrollCountSortBy)
-    ) {
-      return HttpResponse.json(
-        {
-          error: 'Invalid sort parameters',
-        },
-        { status: 400 }
-      );
-    }
+      url.searchParams.get('enrollCountSortBy') || undefined; // asc or desc
 
     const response = generateClassListPaginationResponse({
+      limit,
+      cursor,
       enrollRatioSortBy,
       enrollCountSortBy,
       createdAtSortBy,
