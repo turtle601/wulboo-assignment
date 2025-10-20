@@ -7,9 +7,9 @@ import { CheckboxGroup } from '~/src/shared/ui/checkboxGroup';
 import { InfiniteScroller } from '~/src/shared/ui/infiniteScroller';
 import { useGetInfiniteClasses } from '~/src/entities/class/get-classes';
 import { RadioGroup } from '~/src/shared/ui/radioGroup';
-import { useInput } from '~/src/shared/hooks/useInput';
 
 import { CreateEnrollClassesButton } from '~/src/features/classes/get-infinite-classes/createEnrollClassesButton';
+import { useState } from 'react';
 
 export function GetInfiniteClasses() {
   const {
@@ -23,7 +23,15 @@ export function GetInfiniteClasses() {
     getAllSearchParams()
   );
 
-  const { register, watchAll } = useInput();
+  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
+
+  const toggleSelectedCourseId = (id: string) => {
+    setSelectedCourseIds((prev) =>
+      prev.includes(id)
+        ? prev.filter((courseId) => courseId !== id)
+        : [...prev, id]
+    );
+  };
 
   return (
     <div className="w-full flex flex-col gap-8">
@@ -75,24 +83,19 @@ export function GetInfiniteClasses() {
             {data?.pages.map((page) => (
               <div key={page.nextCursor}>
                 {page.classes.map((classItem) => (
-                  <ClassCard
-                    key={classItem.id}
-                    course={classItem}
-                    {...register({ id: classItem.id })}
-                  />
+                  <div key={classItem.id} className="mb-2">
+                    <ClassCard
+                      course={classItem}
+                      onClick={toggleSelectedCourseId}
+                    />
+                  </div>
                 ))}
               </div>
             ))}
           </CheckboxGroup.Wrapper>
         </InfiniteScroller>
       </div>
-      <CreateEnrollClassesButton
-        selectedCourseIds={
-          watchAll()
-            .els.filter((el) => el.checked)
-            .map((el) => el.id) || []
-        }
-      />
+      <CreateEnrollClassesButton selectedCourseIds={selectedCourseIds} />
     </div>
   );
 }
