@@ -1,8 +1,16 @@
-import { Context, createContext, useContext, useState } from 'react';
+import {
+  Context,
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 interface ITabsContextProps {
   selectedId: string;
-  selectTab: (id: string) => void;
+  setSelectedId: Dispatch<SetStateAction<string>>;
 }
 
 const TabsContext: Context<ITabsContextProps | null> =
@@ -14,28 +22,23 @@ export const useTabsContext = () => {
   return state;
 };
 
-const useTabs = () => {
-  const [selectedId, setSelectedId] = useState('0');
-
-  const selectTab = (id: string) => {
-    setSelectedId(id);
-  };
-
-  return {
-    selectedId,
-    selectTab,
-  };
-};
-
 interface ITabsProviderProps {
   children: React.ReactNode;
+  defaultSelectedId?: string;
 }
 
-export function TabsProvider({ children }: ITabsProviderProps) {
-  const { selectedId, selectTab } = useTabs();
+export function TabsProvider({
+  children,
+  defaultSelectedId = '0',
+}: ITabsProviderProps) {
+  const [selectedId, setSelectedId] = useState(defaultSelectedId);
+
+  useEffect(() => {
+    setSelectedId(defaultSelectedId);
+  }, [defaultSelectedId]);
 
   return (
-    <TabsContext.Provider value={{ selectedId, selectTab }}>
+    <TabsContext.Provider value={{ selectedId, setSelectedId }}>
       {children}
     </TabsContext.Provider>
   );

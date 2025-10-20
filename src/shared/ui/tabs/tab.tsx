@@ -3,24 +3,26 @@ import { ComponentPropsWithoutRef, ReactNode, forwardRef } from 'react';
 import { useTabsContext } from '~/src/shared/ui/tabs/provider';
 import { cn } from '~/src/shared/utils/style';
 
-interface ITabProps extends ComponentPropsWithoutRef<'li'> {
+interface ITabProps extends Omit<ComponentPropsWithoutRef<'li'>, 'onClick'> {
   id?: string;
+  onClick?: (id: string) => void;
   drawSelectedStyle?: (
     isSelected: boolean
   ) => ComponentPropsWithoutRef<'li'>['className'];
+
   children: ReactNode;
 }
 
 export const Tab = forwardRef<HTMLLIElement, ITabProps>(
-  ({ id, children, drawSelectedStyle, ...props }, ref) => {
-    const { selectedId, selectTab } = useTabsContext();
+  ({ id, children, drawSelectedStyle, onClick, ...props }, ref) => {
+    const { selectedId, setSelectedId } = useTabsContext();
 
     const isSelected = selectedId === id;
 
     const handleSelectTab = () => {
       if (id) {
-        selectTab(id);
-        return;
+        setSelectedId(id);
+        onClick?.(id);
       }
     };
 
