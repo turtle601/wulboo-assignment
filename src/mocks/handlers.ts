@@ -1,44 +1,50 @@
-import { http, HttpResponse, StrictRequest } from 'msw';
+import { http, HttpResponse, JsonBodyType, StrictRequest } from 'msw';
 
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
 import { generateClassListPaginationResponse } from '~/src/mocks/classList/classList';
-import { UserMap } from '~/src/mocks/storage';
+import { classList, UserMap, ClassType } from '~/src/mocks/storage';
 
 import { createUser } from '~/src/mocks/user/user';
 
+const getAuthUser = (cookie: Record<string, string>) => {
+  const authToken = cookie['authToken'];
+
+  if (!authToken) {
+    return {
+      status: 401,
+    };
+  }
+
+  const user = UserMap.get(authToken);
+
+  if (!user) {
+    return { status: 403 };
+  }
+
+  return { status: 200, user };
+};
+
 export const userHandlers = [
-  http.get('/api/user', async ({ request }) => {
-    const authToken = request.headers
-      .get('cookie')
-      ?.split('authToken=')[1]
-      ?.split(';')[0];
-
-    if (!authToken) {
-      return HttpResponse.json({}, { status: 401 });
-    }
-
-    const user = UserMap.get(authToken);
-
-    if (!user) {
-      return HttpResponse.json({}, { status: 403 });
-    }
-
-    return HttpResponse.json(user, { status: 200 });
+  http.get('/api/user', async ({ cookies }) => {
+    const response = getAuthUser(cookies);
+    return HttpResponse.json({}, response);
   }),
 
   http.post(
     '/api/user',
     async ({ request }: { request: StrictRequest<UserRequestBodyType> }) => {
       const userData = await request.json();
-      return HttpResponse.json({}, createUser(userData));
+
+      const response = createUser(userData);
+
+      return HttpResponse.json({}, response);
     }
   ),
 ];
 
 export const classesHandlers = [
   http.get('/api/classList', async ({ request }) => {
-    console.log('request', request);
     const url = new URL(request.url);
 
     const cursor = url.searchParams.get('cursor') || undefined; // 마지막 항목의 ID
@@ -65,6 +71,76 @@ export const classesHandlers = [
     // await new Promise((resolve) => setTimeout(resolve, 300));
 
     return HttpResponse.json(response, { status: 200 });
+  }),
+
+  http.post<never, string[], JsonBodyType>(
+    '/api/classes/enroll',
+    async ({ request, cookies }) => {
+      const response = getAuthUser(cookies);
+
+      if (!response.user) {
+        return HttpResponse.json({}, response);
+      }
+
+      const courseIds = await request.json();
+
+      const validCourses = classList?.filter((classListItem: ClassType) => {
+        return courseIds?.includes(classListItem.id);
+      });
+
+      for (const classItem of classList) {
+        if (courseIds.includes(classItem.id)) {
+          if (classItem.enrolledUserIds.length < classItem.total) {
+            classItem.enrolledUserIds = [
+              ...new Set([...classItem.enrolledUserIds, response.user.id]),
+            ];
+          }
+        }
+      }
+
+      response.user.enrolledCourses = [
+        ...new Set([...response.user.enrolledCourses, ...validCourses]),
+      ];
+
+      return HttpResponse.json({}, { status: 201 });
+    }
+  ),
+
+  http.get('/api/classes/enroll', async ({ cookies }) => {
+    const response = getAuthUser(cookies);
+
+    if (!response.user) {
+      return HttpResponse.json({}, response);
+    }
+
+    return HttpResponse.json([...response.user.enrolledCourses], {
+      status: 200,
+    });
+  }),
+
+  http.get('/api/classes/myCreated', async ({ cookies }) => {
+    const response = getAuthUser(cookies);
+
+    if (!response.user) {
+      return HttpResponse.json({}, response);
+    }
+
+    if (response.user.isTeacher) {
+      return HttpResponse.json([...response.user.createdClasses], {
+        status: 200,
+      });
+    }
+
+    if (response.user.isStudent) {
+      return HttpResponse.json(
+        {
+          message: '학생은 강의 개설 권한이 없습니다.',
+        },
+        { status: 200 }
+      );
+    }
+
+    return HttpResponse.json({}, { status: 500 });
   }),
 ];
 

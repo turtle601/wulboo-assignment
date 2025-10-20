@@ -8,7 +8,8 @@ export interface UserType {
   isTeacher: boolean;
   createdAt: string;
   updatedAt: string;
-  enrolledCourses?: ClassListType;
+  enrolledCourses: ClassListType;
+  createdClasses: ClassListType;
 }
 
 export const UserMap = new Map<string, UserType>();
@@ -18,7 +19,7 @@ export interface ClassType {
   title: string;
   price: number;
   instructor: string;
-  enrolled: number;
+  enrolledUserIds: string[]; // Set 대신 배열 사용
   total: number;
   createdAt: string;
   updatedAt: string;
@@ -26,95 +27,36 @@ export interface ClassType {
 
 export type ClassListType = ClassType[];
 
-export const classList: ClassListType = [
-  {
-    id: '1',
-    title: 'Class 1',
-    price: 100000,
-    instructor: 'Coach 1',
-    enrolled: 10,
-    total: 100,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Class 2',
-    price: 200000,
-    instructor: 'Coach 2',
-    enrolled: 20,
-    total: 200,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'Class 3',
-    price: 300000,
-    instructor: 'Coach 3',
-    enrolled: 30,
-    total: 300,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    title: 'Class 4',
-    price: 400000,
-    instructor: 'Coach 4',
-    enrolled: 40,
-    total: 400,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    title: 'Class 5',
-    price: 500000,
-    instructor: 'Coach 5',
-    enrolled: 50,
-    total: 500,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '6',
-    title: 'Class 6',
-    price: 600000,
-    instructor: 'Coach 6',
-    enrolled: 60,
-    total: 600,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '7',
-    title: 'Class 7',
-    price: 700000,
-    instructor: 'Coach 7',
-    enrolled: 70,
-    total: 700,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '8',
-    title: 'Class 8',
-    price: 800000,
-    instructor: 'Coach 8',
-    enrolled: 80,
-    total: 800,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '9',
-    title: 'Class 9',
-    price: 900000,
-    instructor: 'Coach 9',
-    enrolled: 90,
-    total: 900,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+const generateClassList = (): ClassListType => {
+  const classes: ClassListType = [];
+  const now = new Date();
+
+  for (let i = 1; i <= 20; i++) {
+    const createdAt = new Date(now.getTime() - (i - 1) * 24 * 60 * 60 * 1000);
+
+    const total = 50 + i * 10;
+    const enrollmentRate = Math.min(0.1 + i * 0.05, 0.95);
+    const enrolledCount = Math.floor(total * enrollmentRate);
+
+    // enrolledUserIds 배열 생성 (각 클래스마다 고유한 user ID 생성)
+    const enrolledUserIds = Array.from(
+      { length: enrolledCount },
+      (_, index) => `user${index + 1}`
+    );
+
+    classes.push({
+      id: i.toString(),
+      title: `Class ${i}`,
+      price: i * 100000,
+      instructor: `Coach ${i}`,
+      enrolledUserIds: enrolledUserIds,
+      total: total,
+      createdAt: createdAt.toISOString(),
+      updatedAt: createdAt.toISOString(),
+    });
+  }
+
+  return classes;
+};
+
+export const classList: ClassListType = generateClassList();

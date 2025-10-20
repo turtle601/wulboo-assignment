@@ -1,23 +1,25 @@
 import { ClassType } from '~/src/mocks/storage';
 import { CheckboxGroup } from '~/src/shared/ui/checkboxGroup';
+
 import { cn } from '~/src/shared/utils/style';
 
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('ko-KR').format(price) + '원';
+};
+
 interface ClassCardProps {
-  name: string;
   course: ClassType;
-  toggleCourse: (course: ClassType) => void;
+  onClick: (id: string) => void;
 }
 
-export function ClassCard({ name, course, toggleCourse }: ClassCardProps) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ko-KR').format(price) + '원';
-  };
+export const ClassCard = ({ course, onClick }: ClassCardProps) => {
+  console.log(course.enrolledUserIds, 'course');
 
   return (
     <CheckboxGroup.Button
-      name={name}
       id={course.id}
       value={course.id}
+      onClick={onClick}
       drawActiveStyle={(isChecked) => {
         return cn(
           'border w-full',
@@ -26,7 +28,6 @@ export function ClassCard({ name, course, toggleCourse }: ClassCardProps) {
             : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
         );
       }}
-      onClick={() => toggleCourse(course)}
     >
       <div className="flex items-start gap-3 p-4 cursor-pointer">
         {/* Checkbox */}
@@ -65,7 +66,7 @@ export function ClassCard({ name, course, toggleCourse }: ClassCardProps) {
             <div className="flex items-center gap-1.5">
               <span className="text-gray-600">수강인원</span>
               <span className={`font-bold 'text-blue-600'`}>
-                {course.enrolled}
+                {course.enrolledUserIds.length}
               </span>
               <span className="text-gray-400">/</span>
               <span className="text-gray-600">{course.total}</span>
@@ -75,4 +76,6 @@ export function ClassCard({ name, course, toggleCourse }: ClassCardProps) {
       </div>
     </CheckboxGroup.Button>
   );
-}
+};
+
+ClassCard.displayName = 'ClassCard';
