@@ -1,24 +1,37 @@
 import { http, HttpResponse, StrictRequest } from 'msw';
+
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
 import { generateClassListPaginationResponse } from '~/src/mocks/classList/classList';
+import { UserMap } from '~/src/mocks/storage';
 
 import { createUser } from '~/src/mocks/user/user';
 
 export const userHandlers = [
+  http.get('/api/user', async ({ request }) => {
+    const authToken = request.headers
+      .get('cookie')
+      ?.split('authToken=')[1]
+      ?.split(';')[0];
+
+    if (!authToken) {
+      return HttpResponse.json({}, { status: 401 });
+    }
+
+    const user = UserMap.get(authToken);
+
+    if (!user) {
+      return HttpResponse.json({}, { status: 403 });
+    }
+
+    return HttpResponse.json(user, { status: 200 });
+  }),
+
   http.post(
     '/api/user',
     async ({ request }: { request: StrictRequest<UserRequestBodyType> }) => {
       const userData = await request.json();
-
-      const status = createUser(userData);
-
-      return HttpResponse.json(
-        {},
-        {
-          status,
-        }
-      );
+      return HttpResponse.json({}, createUser(userData));
     }
   ),
 ];

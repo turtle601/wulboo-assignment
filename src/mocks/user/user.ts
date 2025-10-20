@@ -1,26 +1,21 @@
 import { UserType, UserMap } from '~/src/mocks/storage';
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
-const validateDuplicateEmail = (email: string) => {
-  return Array.from(UserMap.values()).some((user) => user.email === email);
-};
-
 const validateRequiredFields = (userData: UserRequestBodyType) => {
-  const requiredFields = ['username', 'email', 'tel', 'password', 'userType'];
+  const requiredFields = ['username', 'email', 'tel', 'password'];
 
-  return requiredFields.every(
-    (field) => !!userData[field as keyof UserRequestBodyType]
+  return (
+    requiredFields.every(
+      (field) => !!userData[field as keyof UserRequestBodyType]
+    ) &&
+    (userData.isStudent || userData.isTeacher)
   );
 };
 
-export const createUser = (userData: UserRequestBodyType): number => {
+export const createUser = (userData: UserRequestBodyType) => {
   try {
     if (!validateRequiredFields(userData)) {
-      return 400;
-    }
-
-    if (validateDuplicateEmail(userData.email)) {
-      return 409;
+      return { status: 400 };
     }
 
     const newUser: UserType = {
@@ -37,9 +32,12 @@ export const createUser = (userData: UserRequestBodyType): number => {
 
     UserMap.set(newUser.id, newUser);
 
-    return 201; // Created
+    return {
+      status: 201,
+      headers: { 'set-cookie': `authToken=${newUser.id}` }, // 브라우저 닫히면 쿠키 삭제
+    };
   } catch (error) {
     console.error('User creation failed:', error);
-    return 500; // Internal Server Error
+    return { status: 500 }; // Internal Server Error
   }
 };
