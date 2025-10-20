@@ -29,7 +29,8 @@ export const createUser = (userData: UserRequestBodyType): number => {
       email: userData.email,
       tel: userData.tel,
       password: userData.password,
-      userType: userData.userType,
+      isStudent: userData.isStudent,
+      isTeacher: userData.isTeacher,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

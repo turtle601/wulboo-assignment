@@ -4,7 +4,8 @@ export interface UserType {
   email: string;
   tel: string;
   password: string;
-  userType: 'student' | 'teacher';
+  isStudent: boolean;
+  isTeacher: boolean;
   createdAt: string;
   updatedAt: string;
   enrolledCourses?: ClassListType;

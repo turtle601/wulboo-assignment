@@ -1,18 +1,22 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '~/src/shared/api';
+import { useMutation } from '@tanstack/react-query';
+import { requestAPI } from '~/src/shared/api/request';
 
 export interface UserRequestBodyType {
   username: string;
   email: string;
   tel: string;
   password: string;
-  userType: 'student' | 'teacher';
+  isStudent: boolean;
+  isTeacher: boolean;
 }
 
-export const userCreateUser = () => {
+export const useCreateUser = () => {
   return useMutation({
     mutationFn: async (user: UserRequestBodyType) => {
-      return await apiClient.post('/user', user);
+      return await requestAPI({
+        url: '/user',
+        options: { method: 'POST', body: JSON.stringify(user) },
+      });
     },
   });
 };
