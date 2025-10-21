@@ -1,4 +1,3 @@
-import { useRouter } from 'next/navigation';
 import { useEnrollClasses } from '~/src/entities/class/enroll-classes';
 
 interface CreateEnrollClassesButtonProps {
@@ -8,13 +7,11 @@ interface CreateEnrollClassesButtonProps {
 export function CreateEnrollClassesButton({
   selectedCourseIds,
 }: CreateEnrollClassesButtonProps) {
-  const router = useRouter();
   const { mutate: createEnrollClasses } = useEnrollClasses();
 
   const handleCreateEnrollClasses = () => {
     if (selectedCourseIds.length > 0) {
       createEnrollClasses({ courseIds: selectedCourseIds });
-      router.push('/myClass');
     }
   };
 
