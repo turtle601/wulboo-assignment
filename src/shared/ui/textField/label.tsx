@@ -1,7 +1,9 @@
 import { forwardRef } from 'react';
 import { cn } from '~/src/shared/utils/style';
 
-interface LabelProps extends React.ComponentProps<'label'> {}
+interface LabelProps extends Omit<React.ComponentProps<'label'>, 'htmlFor'> {
+  htmlFor: string;
+}
 
 export const Label = forwardRef<HTMLLabelElement, LabelProps>(
   ({ children, className, htmlFor, ...props }, ref) => {

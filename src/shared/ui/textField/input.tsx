@@ -1,8 +1,11 @@
 import { forwardRef } from 'react';
 import { cn } from '~/src/shared/utils/style';
 
-interface InputProps extends React.ComponentProps<'input'> {
+interface InputProps
+  extends Omit<React.ComponentProps<'input'>, 'type' | 'id'> {
+  id: string;
   isError?: boolean;
+  type?: 'text' | 'email' | 'password' | 'tel';
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(

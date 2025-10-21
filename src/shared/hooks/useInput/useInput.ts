@@ -38,7 +38,7 @@ export interface InputRegisterValuesType {
 
 export type InputRegisterType = Omit<
   React.ComponentProps<'input'>,
-  'id' | 'name'
+  'id' | 'name' | 'type'
 > & {
   id: string;
   name?: string;
