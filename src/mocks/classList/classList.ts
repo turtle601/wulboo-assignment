@@ -3,34 +3,35 @@ import { classList } from '~/src/mocks/storage';
 interface Params {
   limit: number;
   cursor?: string;
-  createdAtSortBy?: string;
-  enrollCountSortBy?: string;
-  enrollRatioSortBy?: string;
+  filterParams: 'createdAtSortBy' | 'enrollCountSortBy' | 'enrollRatioSortBy';
 }
 
 export const generateClassListPaginationResponse = ({
   limit,
   cursor,
-  enrollRatioSortBy,
-  enrollCountSortBy,
-  createdAtSortBy,
+  filterParams,
 }: Params) => {
   // eslint-disable-next-line prefer-const
   let sortedClasses = [...classList];
 
-  if (createdAtSortBy === 'new') {
+  if (filterParams === 'createdAtSortBy') {
     sortedClasses.sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
 
-  if (enrollRatioSortBy === 'high') {
-    sortedClasses.sort((a, b) => b.enrolled / b.total - a.enrolled / a.total);
+  if (filterParams === 'enrollCountSortBy') {
+    sortedClasses.sort(
+      (a, b) => b.enrolledUserIds.length - a.enrolledUserIds.length
+    );
   }
 
-  if (enrollCountSortBy === 'desc') {
-    sortedClasses.sort((a, b) => b.enrolled - a.enrolled);
+  if (filterParams === 'enrollRatioSortBy') {
+    sortedClasses.sort(
+      (a, b) =>
+        b.enrolledUserIds.length / b.total - a.enrolledUserIds.length / a.total
+    );
   }
 
   let startIndex = 0;
