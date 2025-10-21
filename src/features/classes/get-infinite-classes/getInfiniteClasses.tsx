@@ -12,15 +12,10 @@ import { CreateEnrollClassesButton } from '~/src/features/classes/get-infinite-c
 import { useState } from 'react';
 
 export function GetInfiniteClasses() {
-  const {
-    getAllSearchParams,
-    toggleCreatedAtSortBy,
-    toggleEnrollCountSortBy,
-    toggleEnrollRatioSortBy,
-  } = useClassesSortByParams();
+  const { getClassesSortBy, filterClassesSortBy } = useClassesSortByParams();
 
   const { data, fetchNextPage, hasNextPage, isLoading } = useGetInfiniteClasses(
-    getAllSearchParams()
+    getClassesSortBy()
   );
 
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
@@ -37,14 +32,14 @@ export function GetInfiniteClasses() {
     <div className="w-full flex flex-col gap-8">
       <RadioGroup.Wrapper
         name="class-sortBy"
-        defaultActiveId={Object.keys(getAllSearchParams())[0]}
+        defaultActiveId={getClassesSortBy()}
       >
         <div className="flex gap-8">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <RadioGroup.Option
               id="createdAtSortBy"
               value="createdAtSortBy"
-              onClick={toggleCreatedAtSortBy}
+              onClick={() => filterClassesSortBy('createdAtSortBy')}
             />
             <CheckboxGroup.Label htmlFor="createdAtSortBy">
               최근 등록순
@@ -54,7 +49,7 @@ export function GetInfiniteClasses() {
             <RadioGroup.Option
               id="enrollCountSortBy"
               value="enrollCountSortBy"
-              onClick={toggleEnrollCountSortBy}
+              onClick={() => filterClassesSortBy('enrollCountSortBy')}
             />
             <CheckboxGroup.Label htmlFor="enrollCountSortBy">
               신청자 많은 순
@@ -64,7 +59,7 @@ export function GetInfiniteClasses() {
             <RadioGroup.Option
               id="enrollRatioSortBy"
               value="enrollRatioSortBy"
-              onClick={toggleEnrollRatioSortBy}
+              onClick={() => filterClassesSortBy('enrollRatioSortBy')}
             />
             <CheckboxGroup.Label htmlFor="enrollRatioSortBy">
               신청률 높은 순

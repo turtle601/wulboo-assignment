@@ -5,10 +5,11 @@ import { cn } from '~/src/shared/utils/style';
 interface OptionProps
   extends Omit<React.ComponentProps<'input'>, 'id' | 'onClick'> {
   id: string;
+  onClick?: () => void;
 }
 
 export const Option = forwardRef<HTMLInputElement, OptionProps>(
-  ({ className, id, value, children, ...props }, ref) => {
+  ({ className, id, value, children, onClick, ...props }, ref) => {
     const { activeId, onActiveChange, name } = useRadioGroup();
 
     const isChecked = activeId === id;
@@ -16,6 +17,7 @@ export const Option = forwardRef<HTMLInputElement, OptionProps>(
     const handleClick = (e: React.MouseEvent) => {
       e.preventDefault();
       onActiveChange?.(id);
+      onClick?.();
     };
 
     return (

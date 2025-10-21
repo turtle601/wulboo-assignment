@@ -49,9 +49,9 @@ export const useCustomSearchParams = () => {
   };
 
   return {
+    getAllSearchParams,
     getSearchParams,
     addSearchParams,
-    getAllSearchParams,
     setSearchParams,
   };
 };

@@ -1,37 +1,25 @@
 import { useCustomSearchParams } from '~/src/shared/hooks/useSearchParams';
 
+export type ClassesSortByType =
+  | 'createdAtSortBy'
+  | 'enrollCountSortBy'
+  | 'enrollRatioSortBy';
+
 export const useClassesSortByParams = () => {
-  const { getSearchParams, getAllSearchParams, setSearchParams } =
-    useCustomSearchParams();
+  const { getSearchParams, setSearchParams } = useCustomSearchParams();
 
-  const toggleCreatedAtSortBy = () => {
-    const params = getSearchParams('createdAtSortBy');
-
+  const filterClassesSortBy = (value: ClassesSortByType) => {
     setSearchParams({
-      createdAtSortBy: params ? null : 'new',
+      filter: value,
     });
   };
 
-  const toggleEnrollCountSortBy = () => {
-    const params = getSearchParams('enrollCountSortBy');
-
-    setSearchParams({
-      enrollCountSortBy: params ? null : 'desc',
-    });
-  };
-
-  const toggleEnrollRatioSortBy = () => {
-    const params = getSearchParams('enrollRatioSortBy');
-
-    setSearchParams({
-      enrollRatioSortBy: params ? null : 'high',
-    });
+  const getClassesSortBy = () => {
+    return getSearchParams('filter') ?? 'createdAtSortBy';
   };
 
   return {
-    getAllSearchParams,
-    toggleCreatedAtSortBy,
-    toggleEnrollCountSortBy,
-    toggleEnrollRatioSortBy,
+    filterClassesSortBy,
+    getClassesSortBy,
   };
 };
