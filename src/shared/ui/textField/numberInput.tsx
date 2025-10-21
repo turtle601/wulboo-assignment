@@ -1,38 +1,80 @@
 import { forwardRef, useRef, useImperativeHandle } from 'react';
 import { cn } from '~/src/shared/utils/style';
 
-interface NumberInputProps extends Omit<React.ComponentProps<'input'>, 'type'> {
+export const FORMATTED_NUMBER_REGEX = /^-?(\d+|\d{1,4}(,\d{1,4})*)(\.\d+)?$/;
+
+export const isFormattedNumber = (value: string) => {
+  return FORMATTED_NUMBER_REGEX.test(value) && value !== '-' && value !== '';
+};
+
+export const formatNumber = (value: string) => {
+  if (isFormattedNumber(value)) {
+    return value.replace(/,/g, '');
+  }
+
+  return value;
+};
+
+interface NumberInputProps
+  extends Omit<React.ComponentProps<'input'>, 'type' | 'onChange'> {
   isError?: boolean;
+  step: number;
+  defaultValue: number;
+  onChange?: (event?: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ isError = false, className, min, max, step = 1, ...props }, ref) => {
+  (
+    { isError = false, className, step = 1, defaultValue, onChange, ...props },
+    ref
+  ) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
     useImperativeHandle(ref, () => {
-      const input = inputRef.current!;
-
-      return new Proxy(input, {
-        get(target: HTMLInputElement, prop: string | symbol) {
-          if (prop === 'stepUp') {
-            return () => {
-              target.stepUp();
-              target.dispatchEvent(new Event('input', { bubbles: true }));
-              target.dispatchEvent(new Event('change', { bubbles: true }));
-            };
-          }
-          if (prop === 'stepDown') {
-            return () => {
-              target.stepDown();
-              target.dispatchEvent(new Event('input', { bubbles: true }));
-              target.dispatchEvent(new Event('change', { bubbles: true }));
-            };
-          }
-
-          return target[prop as keyof typeof target];
-        },
-      });
+      return inputRef.current!;
     });
+
+    const handleStepUp = () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+
+        if (isFormattedNumber(inputRef.current.value)) {
+          inputRef.current.value = Intl.NumberFormat('ko-KR').format(
+            Number(formatNumber(inputRef.current.value)) + step
+          );
+        }
+
+        onChange?.();
+      }
+    };
+
+    const handleStepDown = () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+
+        if (isFormattedNumber(inputRef.current.value)) {
+          inputRef.current.value = Intl.NumberFormat('ko-KR').format(
+            Number(formatNumber(inputRef.current.value)) - step
+          );
+        }
+
+        onChange?.();
+      }
+    };
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+
+      if (inputRef.current) {
+        if (isFormattedNumber(value)) {
+          inputRef.current.value = Intl.NumberFormat('ko-KR').format(
+            Number(formatNumber(value))
+          );
+        }
+      }
+
+      onChange?.(event);
+    };
 
     return (
       <div className="relative w-full">
@@ -49,11 +91,9 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
         `}</style>
 
         <input
-          type="number"
+          type="text"
+          defaultValue={defaultValue}
           aria-invalid={isError}
-          min={min}
-          max={max}
-          step={step}
           className={cn(
             'number-input-custom',
             'flex rounded-lg w-full bg-white py-4 font-normal border border-solid border-gray-300 mb-2 h-[60px] px-5 pr-14 text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 transition-all',
@@ -62,6 +102,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             className
           )}
           ref={inputRef}
+          onChange={handleChange}
           {...props}
         />
 
@@ -69,7 +110,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           <button
             type="button"
             className="h-[26px] w-7 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 rounded-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent disabled:hover:border-gray-200 active:bg-gray-200 active:scale-95 cursor-pointer pointer-events-auto"
-            onClick={() => inputRef.current?.stepUp()}
+            onClick={handleStepUp}
             disabled={props.disabled}
             tabIndex={-1}
             aria-label="증가"
@@ -91,7 +132,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           <button
             type="button"
             className="h-[26px] w-7 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 border border-gray-200 hover:border-gray-300 rounded-md transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent disabled:hover:border-gray-200 active:bg-gray-200 active:scale-95 cursor-pointer pointer-events-auto"
-            onClick={() => inputRef.current?.stepDown()}
+            onClick={handleStepDown}
             disabled={props.disabled}
             tabIndex={-1}
             aria-label="감소"

@@ -65,7 +65,7 @@ export const NumberInput: Story = {
   render: () => (
     <div className="w-80">
       <TextField.label htmlFor="number-input">Number</TextField.label>
-      <TextField.numberInput id="number-input" min={0} max={100} step={1} />
+      <TextField.numberInput id="number-input" defaultValue={0} step={1} />
     </div>
   ),
 };
