@@ -7,7 +7,9 @@ export default function ClassList() {
   return (
     <>
       <Header />
-      <GetInfiniteClasses />
+      <section className="mt-4">
+        <GetInfiniteClasses />
+      </section>
     </>
   );
 }
