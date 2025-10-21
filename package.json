@@ -9,7 +9,7 @@
     "lint": "eslint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "mock:server": "tsx server/mock-server.mjs",
+    "mock": "tsx server/mock-server.mjs",
     "mock:compile": "tsc src/mocks/**/*.ts --outDir dist --module esnext --moduleResolution node --skipLibCheck",
     "dev:mock": "concurrently \"npm run dev\" \"npm run mock:server\""
   },
@@ -28,6 +28,7 @@
     "@storybook/nextjs-vite": "^9.1.12",
     "@tailwindcss/postcss": "^4",
     "@tanstack/eslint-plugin-query": "^5.91.2",
+    "@types/cors": "^2.8.19",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -42,7 +43,8 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zustand": "^5.0.8"
   },
   "msw": {
     "workerDirectory": [
