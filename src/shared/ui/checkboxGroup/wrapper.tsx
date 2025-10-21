@@ -49,9 +49,7 @@ export const Wrapper = ({
   };
 
   return (
-    <CheckboxGroupContext.Provider
-      value={{ activeIds, name, toggleId }}
-    >
+    <CheckboxGroupContext.Provider value={{ activeIds, name, toggleId }}>
       <div role="group" className={className} {...props}>
         {children}
       </div>

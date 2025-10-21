@@ -3,16 +3,17 @@ import { useCheckboxGroup } from '~/src/shared/ui/checkboxGroup/wrapper';
 
 import { cn } from '~/src/shared/utils/style';
 
-interface ButtonProps
-  extends Omit<React.ComponentProps<'input'>, 'id' | 'onClick'> {
+export interface CheckboxGroupButtonProps
+  extends Omit<React.ComponentProps<'input'>, 'id' | 'onClick' | 'children'> {
   id: string;
-  onClick: (id: string) => void;
+  onClick?: (id: string) => void;
+  children: React.ReactNode | ((isChecked: boolean) => React.ReactNode);
   drawActiveStyle?: (
     isChecked: boolean
   ) => React.ComponentProps<'button'>['className'];
 }
 
-export const Button = forwardRef<HTMLInputElement, ButtonProps>(
+export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
   (
     { id, className, onClick, value, children, drawActiveStyle, ...props },
     ref
@@ -45,7 +46,7 @@ export const Button = forwardRef<HTMLInputElement, ButtonProps>(
           className={cn(className, drawActiveStyle?.(isChecked))}
           onClick={handleClick}
         >
-          {children}
+          {typeof children === 'function' ? children(isChecked) : children}
         </button>
       </div>
     );
