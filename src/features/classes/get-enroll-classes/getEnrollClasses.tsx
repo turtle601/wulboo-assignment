@@ -1,6 +1,7 @@
 import { useGetMyEnrolledClasses } from '~/src/entities/class/get-my-enrolled-classes';
 
-import { ClassCard2 } from '~/src/entities/class/ui/classCard2';
+import { ClassContentUI } from '~/src/entities/class/ui/classContentUI';
+import { Card } from '~/src/shared/ui/card';
 
 export function GetEnrollClasses() {
   const { data: enrolledClasses } = useGetMyEnrolledClasses();
@@ -12,7 +13,9 @@ export function GetEnrollClasses() {
   return (
     <ul className="flex flex-col gap-4">
       {enrolledClasses?.map((classItem) => (
-        <ClassCard2 key={classItem.id} course={classItem} />
+        <Card.wrapper key={classItem.id}>
+          <ClassContentUI course={classItem} />
+        </Card.wrapper>
       ))}
     </ul>
   );

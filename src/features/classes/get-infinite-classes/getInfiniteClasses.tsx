@@ -1,6 +1,8 @@
 'use client';
 
-import { ClassCard } from '~/src/entities/class/ui/classCard';
+import { cn } from '~/src/shared/utils/style';
+import { useState } from 'react';
+
 import { useClassesSortByParams } from '~/src/features/classes/get-infinite-classes/useClassesSortByParams.hook';
 
 import { CheckboxGroup } from '~/src/shared/ui/checkboxGroup';
@@ -9,7 +11,9 @@ import { useGetInfiniteClasses } from '~/src/entities/class/get-classes';
 import { RadioGroup } from '~/src/shared/ui/radioGroup';
 
 import { CreateEnrollClassesButton } from '~/src/features/classes/get-infinite-classes/createEnrollClassesButton';
-import { useState } from 'react';
+
+import { Card } from '~/src/shared/ui/card';
+import { ClassContentUI } from '~/src/entities/class/ui/classContentUI';
 
 export function GetInfiniteClasses() {
   const { getClassesSortBy, filterClassesSortBy } = useClassesSortByParams();
@@ -78,12 +82,29 @@ export function GetInfiniteClasses() {
             {data?.pages.map((page) => (
               <div key={page.nextCursor}>
                 {page.classes.map((classItem) => (
-                  <div key={classItem.id} className="mb-2">
-                    <ClassCard
-                      course={classItem}
-                      onClick={toggleSelectedCourseId}
-                    />
-                  </div>
+                  <CheckboxGroup.Button
+                    key={classItem.id}
+                    id={classItem.id}
+                    value={classItem.id}
+                    onClick={toggleSelectedCourseId}
+                    className="w-full mb-2"
+                  >
+                    {(isChecked) => {
+                      return (
+                        <Card.wrapper
+                          className={cn(
+                            'border w-full',
+                            isChecked
+                              ? 'border-blue-500 hover:border-blue-600 shadow-md'
+                              : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                          )}
+                        >
+                          <CheckboxGroup.Icon id={classItem.id} />
+                          <ClassContentUI course={classItem} />
+                        </Card.wrapper>
+                      );
+                    }}
+                  </CheckboxGroup.Button>
                 ))}
               </div>
             ))}
