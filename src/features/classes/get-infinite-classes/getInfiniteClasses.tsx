@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '~/src/shared/utils/style';
 import { useState } from 'react';
+import { cn } from '~/src/shared/utils/style';
 
 import { useClassesSortByParams } from '~/src/features/classes/get-infinite-classes/useClassesSortByParams.hook';
 
@@ -16,10 +16,11 @@ import { Card } from '~/src/shared/ui/card';
 import { ClassContentUI } from '~/src/entities/class/ui/classContentUI';
 
 export function GetInfiniteClasses() {
-  const { getClassesSortBy, filterClassesSortBy } = useClassesSortByParams();
+  const { filterParams, filterClassesSortBy, getAllSearchParams } =
+    useClassesSortByParams();
 
   const { data, fetchNextPage, hasNextPage, isLoading } = useGetInfiniteClasses(
-    getClassesSortBy()
+    getAllSearchParams()
   );
 
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
@@ -34,10 +35,7 @@ export function GetInfiniteClasses() {
 
   return (
     <div className="w-full flex flex-col gap-8">
-      <RadioGroup.Wrapper
-        name="class-sortBy"
-        defaultActiveId={getClassesSortBy()}
-      >
+      <RadioGroup.Wrapper name="class-sortBy" defaultActiveId={filterParams}>
         <div className="flex gap-8">
           <div className="flex items-center gap-4">
             <RadioGroup.Option

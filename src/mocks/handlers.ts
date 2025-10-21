@@ -47,28 +47,34 @@ export const classesHandlers = [
   http.get('/api/classList', async ({ request }) => {
     const url = new URL(request.url);
 
+    const flag = url.searchParams
+      ?.entries()
+      .filter(([key]) => {
+        return !['limit', 'cursor'].includes(key);
+      })
+      .every(([key, value]) => {
+        return (
+          ['filter'].includes(key) &&
+          [
+            'createdAtSortBy',
+            'enrollCountSortBy',
+            'enrollRatioSortBy',
+          ].includes(value)
+        );
+      });
+
+    if (!flag) return HttpResponse.json({}, { status: 400 });
+
     const cursor = url.searchParams.get('cursor') || undefined; // 마지막 항목의 ID
+    const limit = parseInt(url.searchParams.get('limit') ?? '10');
 
-    const limit = parseInt(url.searchParams.get('limit') || '10');
-
-    const createdAtSortBy =
-      url.searchParams.get('createdAtSortBy') || undefined; // old or new
-
-    const enrollRatioSortBy =
-      url.searchParams.get('enrollRatioSortBy') || undefined; // low or high
-
-    const enrollCountSortBy =
-      url.searchParams.get('enrollCountSortBy') || undefined; // asc or desc
+    const filterParams = url.searchParams.get('filter');
 
     const response = generateClassListPaginationResponse({
       limit,
       cursor,
-      enrollRatioSortBy,
-      enrollCountSortBy,
-      createdAtSortBy,
+      filterParams,
     });
-
-    // await new Promise((resolve) => setTimeout(resolve, 300));
 
     return HttpResponse.json(response, { status: 200 });
   }),
@@ -142,6 +148,56 @@ export const classesHandlers = [
 
     return HttpResponse.json({}, { status: 500 });
   }),
+
+  http.post<never, Record<string, string>, JsonBodyType>(
+    '/api/classes/create',
+    async ({ request, cookies }) => {
+      const response = getAuthUser(cookies);
+
+      if (!response.user) {
+        return HttpResponse.json({}, response);
+      }
+
+      if (!response.user.isTeacher) {
+        return HttpResponse.json({}, { status: 403 });
+      }
+
+      const classData = await request.json();
+
+      if (
+        classData['course-title'] &&
+        classData['course-price'] &&
+        classData['course-total']
+      ) {
+        // 강의 만들고 나서 유저 정보에 추가
+        classList.push({
+          id: response.user.id,
+          title: classData['course-title'],
+          price: Number(classData['course-price']),
+          instructor: response.user.username,
+          enrolledUserIds: [],
+          total: Number(classData['course-total']),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+        response.user.createdClasses.push({
+          id: response.user.id,
+          title: classData['course-title'],
+          price: Number(classData['course-price']),
+          instructor: response.user.username,
+          enrolledUserIds: [],
+          total: Number(classData['course-total']),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+        return HttpResponse.json({}, { status: 201 });
+      }
+
+      return HttpResponse.json({}, { status: 400 });
+    }
+  ),
 ];
 
 // 모든 핸들러 통합

@@ -24,14 +24,14 @@ export const classQueries = {
   enroll: () => [...classQueries.keys(), 'enroll'],
   created: () => [...classQueries.keys(), 'myCreated'],
 
-  list: (params: string) => {
+  list: (params: Record<string, string>) => {
     return tanstackInfiniteQueryOptions({
-      queryKey: [...classQueries.lists(), { filter: params }],
+      queryKey: [...classQueries.lists(), { ...params }],
       queryFn: async ({ pageParam }) => {
         return await requestAPI<ClassListResponse>({
           url: '/classList',
           params: new URLSearchParams({
-            ...(params && { filter: params }),
+            ...params,
             ...(pageParam?.cursor && { cursor: pageParam.cursor }),
             limit: '7',
           }),

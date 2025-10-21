@@ -3,7 +3,7 @@ import { classList } from '~/src/mocks/storage';
 interface Params {
   limit: number;
   cursor?: string;
-  filterParams: 'createdAtSortBy' | 'enrollCountSortBy' | 'enrollRatioSortBy';
+  filterParams: string | null;
 }
 
 export const generateClassListPaginationResponse = ({
@@ -11,8 +11,7 @@ export const generateClassListPaginationResponse = ({
   cursor,
   filterParams,
 }: Params) => {
-  // eslint-disable-next-line prefer-const
-  let sortedClasses = [...classList];
+  const sortedClasses = [...classList];
 
   if (filterParams === 'createdAtSortBy') {
     sortedClasses.sort(
@@ -51,32 +50,3 @@ export const generateClassListPaginationResponse = ({
     nextCursor,
   };
 };
-
-export function parseSortOrder(value: string | null): value is 'asc' | 'desc' {
-  if (value === 'asc' || value === 'desc') {
-    return true;
-  }
-  return false;
-}
-
-/**
- * URL 파라미터에서 받은 값을 'high' | 'low' 타입으로 안전하게 변환하는 타입가드 함수
- */
-export function parseHighLowSort(
-  value: string | null
-): value is 'high' | 'low' {
-  if (value === 'high' || value === 'low') {
-    return true;
-  }
-  return false;
-}
-
-/**
- * URL 파라미터에서 받은 값을 'new' | 'old' 타입으로 안전하게 변환하는 타입가드 함수
- */
-export function parseDateSort(value: string | null): value is 'new' | 'old' {
-  if (value === 'new' || value === 'old') {
-    return true;
-  }
-  return false;
-}

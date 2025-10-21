@@ -6,7 +6,8 @@ export type ClassesSortByType =
   | 'enrollRatioSortBy';
 
 export const useClassesSortByParams = () => {
-  const { getSearchParams, setSearchParams } = useCustomSearchParams();
+  const { getSearchParams, setSearchParams, getAllSearchParams } =
+    useCustomSearchParams();
 
   const filterClassesSortBy = (value: ClassesSortByType) => {
     setSearchParams({
@@ -14,12 +15,9 @@ export const useClassesSortByParams = () => {
     });
   };
 
-  const getClassesSortBy = () => {
-    return getSearchParams('filter') ?? 'createdAtSortBy';
-  };
-
   return {
+    getAllSearchParams,
+    filterParams: getSearchParams('filter') ?? 'createdAtSortBy',
     filterClassesSortBy,
-    getClassesSortBy,
   };
 };
