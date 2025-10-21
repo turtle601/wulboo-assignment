@@ -26,6 +26,8 @@ export const createUser = (userData: UserRequestBodyType) => {
       password: userData.password,
       isStudent: userData.isStudent,
       isTeacher: userData.isTeacher,
+      enrolledCourses: [],
+      createdClasses: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -34,7 +36,9 @@ export const createUser = (userData: UserRequestBodyType) => {
 
     return {
       status: 201,
-      headers: { 'set-cookie': `authToken=${newUser.id}` }, // 브라우저 닫히면 쿠키 삭제
+      headers: {
+        'Set-Cookie': `authToken=${newUser.id}`,
+      },
     };
   } catch (error) {
     console.error('User creation failed:', error);
