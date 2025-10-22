@@ -1,7 +1,10 @@
+'use client';
+
 import { JoinForm } from '~/src/features/join/joinForm.ui';
+
 import { Header } from '~/src/widgets/header';
 
-export default function Home() {
+export default function JoinPage() {
   return (
     <>
       <Header />

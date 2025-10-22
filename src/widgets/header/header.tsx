@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 import { useGetUser } from '~/src/entities/user/api/get-user';
@@ -6,6 +8,7 @@ export function Header() {
   const { data: user } = useGetUser();
 
   const isLoggedIn = !!user;
+  const isTeacher = user?.isTeacher;
 
   return (
     <div className="flex justify-between items-center w-full border-b border-gray-200 pb-4">
@@ -14,12 +17,12 @@ export function Header() {
       </Link>
       <div>
         {isLoggedIn ? (
-          <Link href="/myClass">내 강의실</Link>
-        ) : (
           <div className="flex items-center gap-2">
-            <LinkButton href="/join">회원가입</LinkButton>
-            <LinkButton href="/createClass">강의개설</LinkButton>
+            <LinkButton href="/courses/my">내 강의실</LinkButton>
+            {isTeacher && <LinkButton href="/createClass">강의개설</LinkButton>}
           </div>
+        ) : (
+          <LinkButton href="/">회원가입</LinkButton>
         )}
       </div>
     </div>

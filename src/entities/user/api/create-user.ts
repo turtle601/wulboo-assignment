@@ -1,4 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+
+import { userQueries } from '~/src/entities/user/api/user.query';
+import { UserType } from '~/src/mocks/storage';
 import { requestAPI } from '~/src/shared/api/request';
 
 export interface UserRequestBodyType {
@@ -11,12 +15,22 @@ export interface UserRequestBodyType {
 }
 
 export const useCreateUser = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   return useMutation({
     mutationFn: async (user: UserRequestBodyType) => {
-      return await requestAPI({
+      return await requestAPI<UserType>({
         url: '/user',
-        options: { method: 'POST', body: JSON.stringify(user) },
+        options: {
+          method: 'POST',
+          body: JSON.stringify(user),
+        },
       });
+    },
+    onSuccess: () => {
+      router.push('/courses');
+      queryClient.invalidateQueries({ queryKey: userQueries.keys() });
     },
   });
 };

@@ -81,10 +81,7 @@ export const JoinForm = () => {
     const allFieldsValid =
       usernameValid && emailValid && telValid && passwordValid;
 
-    if (!allFieldsValid) {
-      console.log('유효성 검사 실패');
-      return;
-    }
+    if (!allFieldsValid) return;
 
     createUser({
       username: data.username?.element?.value || '',
@@ -101,6 +98,7 @@ export const JoinForm = () => {
       <div>
         <TextField.label htmlFor="username">이름</TextField.label>
         <TextField.input
+          type="text"
           {...register({ id: 'username', name: 'username' })}
           placeholder="이름을 입력해주세요"
           required
@@ -124,7 +122,7 @@ export const JoinForm = () => {
           type="email"
           {...register({ id: 'email', name: 'email' })}
           required
-          pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+          pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
           onChange={() => validateEmail({ elements: watch(['email']).els })}
           onFocus={() => validateEmail({ elements: watch(['email']).els })}
         />
