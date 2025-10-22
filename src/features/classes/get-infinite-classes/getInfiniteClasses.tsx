@@ -16,11 +16,11 @@ import { Card } from '~/src/shared/ui/card';
 import { ClassContentUI } from '~/src/entities/class/ui/classContentUI';
 
 export function GetInfiniteClasses() {
-  const { filterParams, filterClassesSortBy, getAllSearchParams } =
+  const { filterParams, filterClassesSortBy, getDefaultClassesSearchParams } =
     useClassesSortByParams();
 
   const { data, fetchNextPage, hasNextPage, isLoading } = useGetInfiniteClasses(
-    getAllSearchParams()
+    getDefaultClassesSearchParams()
   );
 
   const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);

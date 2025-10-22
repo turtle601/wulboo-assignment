@@ -15,8 +15,15 @@ export const useClassesSortByParams = () => {
     });
   };
 
+  const getDefaultClassesSearchParams = () => {
+    const params = getAllSearchParams();
+    return Object.keys(params).length === 0
+      ? { filter: 'createdAtSortBy' }
+      : params;
+  };
+
   return {
-    getAllSearchParams,
+    getDefaultClassesSearchParams,
     filterParams: getSearchParams('filter') ?? 'createdAtSortBy',
     filterClassesSortBy,
   };
