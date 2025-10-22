@@ -1,6 +1,6 @@
 import { Card } from '~/src/shared/ui/card';
 
-import type { ClassType } from '~/src/mocks/storage';
+import type { ClassType } from '~/server/mocks/storage';
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ko-KR').format(price) + '원';

@@ -1,8 +1,10 @@
 import {
+  InfiniteData,
+  QueryKey,
   infiniteQueryOptions as tanstackInfiniteQueryOptions,
   queryOptions as tsqQueryOptions,
 } from '@tanstack/react-query';
-import { ClassListType } from '~/src/mocks/storage';
+import { ClassListType } from '~/server/mocks/storage';
 import { requestAPI } from '~/src/shared/api/request';
 
 export interface ClassListParams {
@@ -17,6 +19,9 @@ export interface ClassListResponse {
   classes: ClassListType;
 }
 
+export const CLASS_LIST_LIMIT = '7' as const;
+export const INITIAL_CURSOR = '' as const;
+
 export const classQueries = {
   keys: () => ['classes'],
 
@@ -25,22 +30,35 @@ export const classQueries = {
   created: () => [...classQueries.keys(), 'myCreated'],
 
   list: (params: Record<string, string>) => {
-    return tanstackInfiniteQueryOptions({
-      queryKey: [...classQueries.lists(), { ...params }],
+    return tanstackInfiniteQueryOptions<
+      ClassListResponse,
+      Error,
+      InfiniteData<ClassListResponse>,
+      QueryKey,
+      { cursor?: string; limit?: string }
+    >({
+      queryKey: [
+        ...classQueries.lists(),
+        {
+          ...params,
+          cursor: params.cursor || INITIAL_CURSOR,
+          limit: params.limit || CLASS_LIST_LIMIT,
+        },
+      ],
       queryFn: async ({ pageParam }) => {
         return await requestAPI<ClassListResponse>({
           url: '/classList',
           params: new URLSearchParams({
             ...params,
             ...(pageParam?.cursor && { cursor: pageParam.cursor }),
-            limit: '7',
+            limit: CLASS_LIST_LIMIT,
           }),
           options: {
             method: 'GET',
           },
         });
       },
-      initialPageParam: { cursor: '' },
+      initialPageParam: { cursor: INITIAL_CURSOR },
       getNextPageParam: (lastPage: ClassListResponse) => {
         return lastPage.hasMore ? { cursor: lastPage.nextCursor } : undefined;
       },

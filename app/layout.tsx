@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 
-import { MSWProvider, QueryClientProvider } from '~/src/app/provider';
+import { QueryClientProvider } from '~/src/app/provider';
 import { CommonLayout } from '~/src/widgets/commonLayout';
 
 const geistSans = Geist({
@@ -31,7 +31,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MSWProvider />
         <QueryClientProvider>
           <CommonLayout>{children}</CommonLayout>
         </QueryClientProvider>

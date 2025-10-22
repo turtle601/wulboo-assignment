@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { ClassContentUI } from '~/src/entities/class/ui/classContentUI';
 import { Card } from '~/src/shared/ui/card';
 

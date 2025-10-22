@@ -1,5 +1,3 @@
-'use client';
-
 import { CreateClass } from '~/src/pages/createClass';
 
 export default function CreateClassPage() {

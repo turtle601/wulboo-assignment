@@ -2,10 +2,11 @@ import { http, HttpResponse, JsonBodyType, StrictRequest } from 'msw';
 
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
-import { generateClassListPaginationResponse } from '~/src/mocks/classList/classList';
-import { classList, UserMap, ClassType } from '~/src/mocks/storage';
+import { generateClassListPaginationResponse } from '~/server/mocks/classList/classList';
+import { classList, UserMap, ClassType } from '~/server/mocks/storage';
 
-import { createUser } from '~/src/mocks/user/user';
+import { createUser } from '~/server/mocks/user/user';
+import { API_BASE_URL } from '~/src/shared/api/constant';
 
 const getAuthUser = (cookie: Record<string, string>) => {
   const authToken = cookie['authToken'];
@@ -26,13 +27,13 @@ const getAuthUser = (cookie: Record<string, string>) => {
 };
 
 export const userHandlers = [
-  http.get('/api/user', async ({ cookies }) => {
+  http.get(`/user`, async ({ cookies }) => {
     const response = getAuthUser(cookies);
-    return HttpResponse.json({}, response);
+    return HttpResponse.json(response.user, { status: response.status });
   }),
 
   http.post(
-    '/api/user',
+    `/user`,
     async ({ request }: { request: StrictRequest<UserRequestBodyType> }) => {
       const userData = await request.json();
 
@@ -44,7 +45,7 @@ export const userHandlers = [
 ];
 
 export const classesHandlers = [
-  http.get('/api/classList', async ({ request }) => {
+  http.get(`/classList`, async ({ request }) => {
     const url = new URL(request.url);
 
     const flag = url.searchParams
@@ -80,7 +81,7 @@ export const classesHandlers = [
   }),
 
   http.post<never, string[], JsonBodyType>(
-    '/api/classes/enroll',
+    `/classes/enroll`,
     async ({ request, cookies }) => {
       const response = getAuthUser(cookies);
 
@@ -112,7 +113,7 @@ export const classesHandlers = [
     }
   ),
 
-  http.get('/api/classes/enroll', async ({ cookies }) => {
+  http.get(`/classes/enroll`, async ({ cookies }) => {
     const response = getAuthUser(cookies);
 
     if (!response.user) {
@@ -124,7 +125,7 @@ export const classesHandlers = [
     });
   }),
 
-  http.get('/api/classes/myCreated', async ({ cookies }) => {
+  http.get(`/classes/myCreated`, async ({ cookies }) => {
     const response = getAuthUser(cookies);
 
     if (!response.user) {
@@ -150,7 +151,7 @@ export const classesHandlers = [
   }),
 
   http.post<never, Record<string, string>, JsonBodyType>(
-    '/api/classes/create',
+    `/classes/create`,
     async ({ request, cookies }) => {
       const response = getAuthUser(cookies);
 

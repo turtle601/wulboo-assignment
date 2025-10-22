@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 import { userQueries } from '~/src/entities/user/api/user.query';
-import { UserType } from '~/src/mocks/storage';
+import { UserType } from '~/server/mocks/storage';
 import { requestAPI } from '~/src/shared/api/request';
 
 export interface UserRequestBodyType {

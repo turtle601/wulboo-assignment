@@ -10,9 +10,9 @@ function makeQueryClient() {
       queries: {
         staleTime: 60 * 1000, // 1 minute
         gcTime: 5 * 60 * 1000, // 5 minutes (formerly cacheTime)
+        retry: false,
       },
       dehydrate: {
-        // Include all queries in dehydration by default
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) ||
           query.state.status === 'pending',

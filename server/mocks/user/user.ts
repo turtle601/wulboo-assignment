@@ -1,4 +1,4 @@
-import { UserType, UserMap } from '~/src/mocks/storage';
+import { UserType, UserMap } from '~/server/mocks/storage';
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
 const validateRequiredFields = (userData: UserRequestBodyType) => {

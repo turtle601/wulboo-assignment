@@ -1,4 +1,4 @@
-import { classList } from '~/src/mocks/storage';
+import { classList } from '~/server/mocks/storage';
 
 interface Params {
   limit: number;

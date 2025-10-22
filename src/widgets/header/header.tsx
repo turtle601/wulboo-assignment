@@ -19,7 +19,9 @@ export function Header() {
         {isLoggedIn ? (
           <div className="flex items-center gap-2">
             <LinkButton href="/courses/my">내 강의실</LinkButton>
-            {isTeacher && <LinkButton href="/createClass">강의개설</LinkButton>}
+            {isTeacher && (
+              <LinkButton href="/courses/create">강의개설</LinkButton>
+            )}
           </div>
         ) : (
           <LinkButton href="/">회원가입</LinkButton>
