@@ -6,7 +6,6 @@ import { generateClassListPaginationResponse } from '~/server/mocks/classList/cl
 import { classList, UserMap, ClassType } from '~/server/mocks/storage';
 
 import { createUser } from '~/server/mocks/user/user';
-import { API_BASE_URL } from '~/src/shared/api/constant';
 
 const getAuthUser = (cookie: Record<string, string>) => {
   const authToken = cookie['authToken'];
