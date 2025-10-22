@@ -26,7 +26,7 @@ export const useEnrollClasses = () => {
         queryKey: [...classQueries.enroll()],
       });
 
-      router.push('/classes');
+      router.push('/courses/my');
     },
     onError: () => {
       console.log('수강하기 실패');

@@ -45,7 +45,7 @@ const generateClassList = (): ClassListType => {
     );
 
     classes.push({
-      id: i.toString(),
+      id: `${new Date().getTime().toString()}-${i}`,
       title: `Class ${i}`,
       price: i * 100000,
       instructor: `Coach ${i}`,
@@ -59,16 +59,4 @@ const generateClassList = (): ClassListType => {
   return classes;
 };
 
-export const classList: ClassListType = [
-  {
-    id: '1asdfasdf',
-    title: 'Class 1asdfasd',
-    price: 100000,
-    instructor: 'Coach 1',
-    enrolledUserIds: ['user1', 'user2', 'user3'],
-    total: 3,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  ...generateClassList(),
-];
+export const classList: ClassListType = generateClassList();

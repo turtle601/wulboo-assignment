@@ -2,28 +2,21 @@ import { http, HttpResponse, JsonBodyType, StrictRequest } from 'msw';
 
 import { UserRequestBodyType } from '~/src/entities/user/api/create-user';
 
-import { generateClassListPaginationResponse } from '~/server/mocks/classList/classList';
-import { classList, UserMap, ClassType } from '~/server/mocks/storage';
+import { classList } from '~/server/mocks/storage';
 
-import { createUser } from '~/server/mocks/user/user';
-
-const getAuthUser = (cookie: Record<string, string>) => {
-  const authToken = cookie['authToken'];
-
-  if (!authToken) {
-    return {
-      status: 401,
-    };
-  }
-
-  const user = UserMap.get(authToken);
-
-  if (!user) {
-    return { status: 403 };
-  }
-
-  return { status: 200, user };
-};
+import { enrollCourses } from '~/server/mocks/service/enroll';
+import {
+  checkMyCreateClassBodyData,
+  makeClassData,
+} from '~/server/mocks/service/myCreate';
+import { createUser, getAuthUser } from '~/server/mocks/service/user';
+import {
+  checkCourseFilterParams,
+  filterCreatedAtSortBy,
+  filterEnrollCountSortBy,
+  filterEnrollRatioSortBy,
+  filterPagination,
+} from '~/server/mocks/service/courses';
 
 export const userHandlers = [
   http.get(`/user`, async ({ cookies }) => {
@@ -35,10 +28,19 @@ export const userHandlers = [
     `/user`,
     async ({ request }: { request: StrictRequest<UserRequestBodyType> }) => {
       const userData = await request.json();
-
       const response = createUser(userData);
 
-      return HttpResponse.json({}, response);
+      try {
+        return HttpResponse.json(
+          {},
+          {
+            status: response.status,
+            headers: { 'Set-Cookie': `authToken=${response.user.id}` },
+          }
+        );
+      } catch (error: unknown) {
+        return HttpResponse.json({ error }, { status: 500 });
+      }
     }
   ),
 ];
@@ -47,33 +49,20 @@ export const classesHandlers = [
   http.get(`/classList`, async ({ request }) => {
     const url = new URL(request.url);
 
-    const flag = url.searchParams
-      ?.entries()
-      .filter(([key]) => {
-        return !['limit', 'cursor'].includes(key);
-      })
-      .every(([key, value]) => {
-        return (
-          ['filter'].includes(key) &&
-          [
-            'createdAtSortBy',
-            'enrollCountSortBy',
-            'enrollRatioSortBy',
-          ].includes(value)
-        );
-      });
+    if (!checkCourseFilterParams(url))
+      return HttpResponse.json({}, { status: 400 });
 
-    if (!flag) return HttpResponse.json({}, { status: 400 });
-
-    const cursor = url.searchParams.get('cursor') || undefined; // 마지막 항목의 ID
-    const limit = parseInt(url.searchParams.get('limit') ?? '10');
-
+    const sortedClasses = [...classList];
     const filterParams = url.searchParams.get('filter');
 
-    const response = generateClassListPaginationResponse({
-      limit,
-      cursor,
-      filterParams,
+    filterCreatedAtSortBy(filterParams, sortedClasses);
+    filterEnrollCountSortBy(filterParams, sortedClasses);
+    filterEnrollRatioSortBy(filterParams, sortedClasses);
+
+    const response = filterPagination({
+      courseList: sortedClasses,
+      limit: parseInt(url.searchParams.get('limit') ?? '10'),
+      cursor: url.searchParams.get('cursor') || undefined,
     });
 
     return HttpResponse.json(response, { status: 200 });
@@ -88,25 +77,7 @@ export const classesHandlers = [
         return HttpResponse.json({}, response);
       }
 
-      const courseIds = await request.json();
-
-      const validCourses = classList?.filter((classListItem: ClassType) => {
-        return courseIds?.includes(classListItem.id);
-      });
-
-      for (const classItem of classList) {
-        if (courseIds.includes(classItem.id)) {
-          if (classItem.enrolledUserIds.length < classItem.total) {
-            classItem.enrolledUserIds = [
-              ...new Set([...classItem.enrolledUserIds, response.user.id]),
-            ];
-          }
-        }
-      }
-
-      response.user.enrolledCourses = [
-        ...new Set([...response.user.enrolledCourses, ...validCourses]),
-      ];
+      enrollCourses({ courseIds: await request.json(), user: response.user });
 
       return HttpResponse.json({}, { status: 201 });
     }
@@ -164,33 +135,14 @@ export const classesHandlers = [
 
       const classData = await request.json();
 
-      if (
-        classData['course-title'] &&
-        classData['course-price'] &&
-        classData['course-total']
-      ) {
-        // 강의 만들고 나서 유저 정보에 추가
-        classList.push({
-          id: response.user.id,
-          title: classData['course-title'],
-          price: Number(classData['course-price']),
-          instructor: response.user.username,
-          enrolledUserIds: [],
-          total: Number(classData['course-total']),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+      if (checkMyCreateClassBodyData(classData)) {
+        const newClass = makeClassData({
+          courseData: classData,
+          username: response.user.username,
         });
 
-        response.user.createdClasses.push({
-          id: response.user.id,
-          title: classData['course-title'],
-          price: Number(classData['course-price']),
-          instructor: response.user.username,
-          enrolledUserIds: [],
-          total: Number(classData['course-total']),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        classList.push(newClass);
+        response.user.createdClasses.push(newClass);
 
         return HttpResponse.json({}, { status: 201 });
       }

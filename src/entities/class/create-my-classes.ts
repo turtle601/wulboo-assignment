@@ -14,12 +14,13 @@ export const useCreateMyClasses = () => {
         options: {
           method: 'POST',
           body: JSON.stringify(classData),
+          credentials: 'include',
         },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...classQueries.keys()] });
-      router.push('/');
+      router.push('/courses/my?tab=1');
     },
     onError: () => {
       console.error('강의 생성에 실패했습니다');

@@ -32,7 +32,17 @@ export function CreateClass() {
     isError: priceFieldIsError,
   } = useValidateInput(validate);
 
+  const validateFn = () => {
+    return Object.entries({
+      'course-title': validateTitleField,
+      'course-total': validateEnrolledUserLimitField,
+      'course-price': validatePriceField,
+    }).every(([key, value]) => value({ elements: watch([key]).els }));
+  };
+
   const handleSubmit = () => {
+    if (!validateFn()) return;
+
     const classData = watchAll().els.reduce<Record<string, string>>(
       (acc, el) => {
         acc[el.id] = el.value;
