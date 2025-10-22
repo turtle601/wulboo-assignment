@@ -85,7 +85,10 @@ export function GetInfiniteClasses() {
                     id={classItem.id}
                     value={classItem.id}
                     onClick={toggleSelectedCourseId}
-                    className="w-full mb-2"
+                    disabled={
+                      classItem.total === classItem.enrolledUserIds.length
+                    }
+                    className={cn('w-full mb-2')}
                   >
                     {(isChecked) => {
                       return (

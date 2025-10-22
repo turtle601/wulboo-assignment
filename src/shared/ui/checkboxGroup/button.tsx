@@ -15,7 +15,16 @@ export interface CheckboxGroupButtonProps
 
 export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
   (
-    { id, className, onClick, value, children, drawActiveStyle, ...props },
+    {
+      id,
+      className,
+      onClick,
+      value,
+      disabled,
+      children,
+      drawActiveStyle,
+      ...props
+    },
     ref
   ) => {
     const { activeIds, toggleId, name } = useCheckboxGroup();
@@ -23,12 +32,14 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
     const isChecked = activeIds.includes(id);
 
     const handleClick = () => {
+      if (disabled) return;
+
       toggleId?.(id);
       onClick?.(id);
     };
 
     return (
-      <div className="relative flex items-center justify-center">
+      <div className={cn('relative flex items-center justify-center')}>
         <input
           type="checkbox"
           className="sr-only"
@@ -36,6 +47,7 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
           value={value}
           id={id}
           checked={isChecked}
+          disabled={disabled}
           ref={ref}
           onChange={(e) => {
             e.preventDefault();
@@ -43,7 +55,14 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
           {...props}
         />
         <button
-          className={cn(className, drawActiveStyle?.(isChecked))}
+          className={cn(
+            'w-full transition-all duration-200',
+            'disabled:opacity-80 disabled:cursor-not-allowed',
+            'disabled:[&_*]:opacity-80 disabled:[&_*]:cursor-not-allowed',
+            drawActiveStyle?.(isChecked),
+            className
+          )}
+          disabled={disabled}
           onClick={handleClick}
         >
           {typeof children === 'function' ? children(isChecked) : children}

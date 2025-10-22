@@ -11,6 +11,8 @@ interface ClassContentUIProps {
 }
 
 export function ClassContentUI({ course }: ClassContentUIProps) {
+  const isFull = course.enrolledUserIds.length >= course.total;
+
   return (
     <Card.content>
       <div>
@@ -32,12 +34,21 @@ export function ClassContentUI({ course }: ClassContentUIProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-gray-600">수강인원</span>
-            <span className={`font-bold 'text-blue-600'`}>
-              {course.enrolledUserIds.length}
-            </span>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-600">{course.total}</span>
+            {/* 수강 마감 표시 */}
+            {isFull ? (
+              <span className="ml-2 px-2 py-1 text-xs font-medium text-orange-900 bg-orange-200 rounded-full">
+                수강 마감
+              </span>
+            ) : (
+              <>
+                <span className="text-gray-600">수강인원</span>
+                <span className="font-bold text-blue-600">
+                  {course.enrolledUserIds.length}
+                </span>
+                <span className="text-gray-400">/</span>
+                <span className="text-gray-600">{course.total}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
