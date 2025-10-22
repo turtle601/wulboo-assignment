@@ -59,4 +59,16 @@ const generateClassList = (): ClassListType => {
   return classes;
 };
 
-export const classList: ClassListType = generateClassList();
+export const classList: ClassListType = [
+  {
+    id: '1asdfasdf',
+    title: 'Class 1asdfasd',
+    price: 100000,
+    instructor: 'Coach 1',
+    enrolledUserIds: ['user1', 'user2', 'user3'],
+    total: 3,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  ...generateClassList(),
+];

@@ -5,6 +5,7 @@ import './globals.css';
 
 import { QueryClientProvider } from '~/src/app/provider';
 import { CommonLayout } from '~/src/widgets/commonLayout';
+import { Modal } from '~/src/shared/ui/modal';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,7 +34,9 @@ export default function RootLayout({
       >
         <QueryClientProvider>
           <CommonLayout>{children}</CommonLayout>
+          <Modal.Root />
         </QueryClientProvider>
+        <div id="modal-root"></div>
       </body>
     </html>
   );
