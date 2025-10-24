@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { classQueries } from '~/src/entities/class/class.query';
+import { userQueries } from '~/src/entities/user/api/user.query';
+
 import { requestAPI } from '~/src/shared/api/request';
 
 export const useCreateMyClasses = () => {
@@ -14,16 +16,20 @@ export const useCreateMyClasses = () => {
         options: {
           method: 'POST',
           body: JSON.stringify(classData),
+          headers: {
+            'Content-Type': 'application/json',
+          },
           credentials: 'include',
         },
       });
     },
     onSuccess: () => {
+      router.push('/courses');
       queryClient.invalidateQueries({ queryKey: [...classQueries.keys()] });
-      router.push('/courses/my?tab=1');
+      queryClient.invalidateQueries({ queryKey: [...userQueries.keys()] });
     },
-    onError: () => {
-      console.error('강의 생성에 실패했습니다');
+    onError: (error) => {
+      console.log('onError', error);
     },
   });
 };

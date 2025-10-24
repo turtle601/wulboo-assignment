@@ -5,6 +5,7 @@ import {
   queryOptions as tsqQueryOptions,
 } from '@tanstack/react-query';
 import { ClassListType } from '~/server/mocks/storage';
+
 import { requestAPI } from '~/src/shared/api/request';
 
 export interface ClassListParams {
@@ -29,7 +30,7 @@ export const classQueries = {
   enroll: () => [...classQueries.keys(), 'enroll'],
   created: () => [...classQueries.keys(), 'myCreated'],
 
-  list: (params: Record<string, string>) => {
+  list: (params: Record<string, string>, options: RequestInit) => {
     return tanstackInfiniteQueryOptions<
       ClassListResponse,
       Error,
@@ -47,15 +48,13 @@ export const classQueries = {
       ],
       queryFn: async ({ pageParam }) => {
         return await requestAPI<ClassListResponse>({
-          url: '/classList',
+          url: '/classes',
           params: new URLSearchParams({
             ...params,
             ...(pageParam?.cursor && { cursor: pageParam.cursor }),
             limit: CLASS_LIST_LIMIT,
           }),
-          options: {
-            method: 'GET',
-          },
+          options,
         });
       },
       initialPageParam: { cursor: INITIAL_CURSOR },
@@ -65,30 +64,30 @@ export const classQueries = {
     });
   },
 
-  myEnrolledList: () => {
+  myEnrolledList: (options: RequestInit) => {
     return tsqQueryOptions({
-      queryKey: [...classQueries.enroll()],
+      queryKey: [...classQueries.keys(), ...classQueries.enroll()],
       queryFn: async () => {
         return await requestAPI<ClassListType>({
           url: '/classes/enroll',
           options: {
             method: 'GET',
-            credentials: 'include',
+            ...options,
           },
         });
       },
     });
   },
 
-  myCreatedList: () => {
+  myCreatedList: (options: RequestInit) => {
     return tsqQueryOptions({
-      queryKey: [...classQueries.created()],
+      queryKey: [...classQueries.keys(), ...classQueries.created()],
       queryFn: async () => {
         return await requestAPI<ClassListType | { message: string }>({
           url: '/classes/myCreated',
           options: {
             method: 'GET',
-            credentials: 'include',
+            ...options,
           },
         });
       },

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { classQueries } from '~/src/entities/class/class.query';
+import { userQueries } from '~/src/entities/user/api/user.query';
 import { requestAPI } from '~/src/shared/api/request';
 
 interface EnrollClassesParams {
@@ -16,21 +17,19 @@ export const useEnrollClasses = () => {
         url: `/classes/enroll`,
         options: {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(courseIds),
           credentials: 'include',
         },
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...classQueries.enroll()],
-      });
+      queryClient.invalidateQueries({ queryKey: [...classQueries.keys()] });
+      queryClient.invalidateQueries({ queryKey: [...userQueries.keys()] });
 
       router.push('/courses/my');
-    },
-    onError: () => {
-      console.log('수강하기 실패');
-      // 회원가입 권유 모달 띄우기
     },
   });
 };
