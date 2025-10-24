@@ -9,21 +9,15 @@ import type {
 } from '@tanstack/react-query';
 import { getQueryClient } from '~/src/shared/lib/tanstack-query';
 
-type AnyFetchQueryOptions =
-  | FetchQueryOptions<any, DefaultError, any, QueryKey>
-  | FetchInfiniteQueryOptions<any, DefaultError, any, QueryKey, any>;
+export type AnyFetchQueryOptions =
+  | FetchQueryOptions<any, DefaultError, any, any> // QueryKey를 any로 변경
+  | FetchInfiniteQueryOptions<any, DefaultError, any, any, any>; // QueryKey를 any로 변
 
 // 타입가드 함수들
 function isInfiniteQueryOptions(
   option: AnyFetchQueryOptions
 ): option is FetchInfiniteQueryOptions<any, DefaultError, any, QueryKey, any> {
   return 'initialPageParam' in option && 'getNextPageParam' in option;
-}
-
-function isRegularQueryOptions(
-  option: AnyFetchQueryOptions
-): option is FetchQueryOptions<any, DefaultError, any, QueryKey> {
-  return !isInfiniteQueryOptions(option);
 }
 
 export async function HydrationPrefetchBoundary({
@@ -41,11 +35,7 @@ export async function HydrationPrefetchBoundary({
         return queryClient.prefetchInfiniteQuery(option);
       }
 
-      if (isRegularQueryOptions(option)) {
-        return queryClient.prefetchQuery(option);
-      }
-
-      return null;
+      return queryClient.prefetchQuery(option);
     })
   );
 
