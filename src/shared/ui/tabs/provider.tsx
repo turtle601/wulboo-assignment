@@ -4,7 +4,6 @@ import {
   Dispatch,
   SetStateAction,
   useContext,
-  useEffect,
   useState,
 } from 'react';
 
@@ -32,10 +31,6 @@ export function TabsProvider({
   defaultSelectedId = '0',
 }: ITabsProviderProps) {
   const [selectedId, setSelectedId] = useState(defaultSelectedId);
-
-  useEffect(() => {
-    setSelectedId(defaultSelectedId);
-  }, [defaultSelectedId]);
 
   return (
     <TabsContext.Provider value={{ selectedId, setSelectedId }}>
