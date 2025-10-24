@@ -2,9 +2,6 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { MyPage } from '~/src/pages/my';
 
-import { MyClassForTeacher } from '~/src/pages/my/myClassForTeacher';
-import { MyCreatedClassForStudent } from '~/src/pages/my/myCreatedClassForStudent';
-
 import { API_BASE_URL } from '~/src/shared/api';
 
 export default async function MyCoursePage() {
