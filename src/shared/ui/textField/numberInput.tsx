@@ -36,29 +36,25 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 
     const handleStepUp = () => {
       if (inputRef.current) {
-        inputRef.current.focus();
-
         if (isFormattedNumber(inputRef.current.value)) {
           inputRef.current.value = Intl.NumberFormat('ko-KR').format(
             Number(formatNumber(inputRef.current.value)) + step
           );
         }
 
-        onChange?.();
+        inputRef.current.focus();
       }
     };
 
     const handleStepDown = () => {
       if (inputRef.current) {
-        inputRef.current.focus();
-
         if (isFormattedNumber(inputRef.current.value)) {
           inputRef.current.value = Intl.NumberFormat('ko-KR').format(
             Number(formatNumber(inputRef.current.value)) - step
           );
         }
 
-        onChange?.();
+        inputRef.current.focus();
       }
     };
 
@@ -92,7 +88,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 
         <input
           type="text"
-          defaultValue={defaultValue}
+          defaultValue={Intl.NumberFormat('ko-KR').format(defaultValue)}
           aria-invalid={isError}
           className={cn(
             'number-input-custom',
