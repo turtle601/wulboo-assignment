@@ -53,9 +53,9 @@ export const requestAPI = async <T>({
       case 409:
         throw new HTTP409Error(USER_EXISTS_ERROR_MESSAGE);
       case 500:
-        throw new HTTP500Error(RUN_TIME_ERROR_MESSAGE);
+        throw new HTTP500Error(REQUEST_ERROR_MESSAGE);
       default:
-        throw new HTTPEtcError(response.status, REQUEST_ERROR_MESSAGE);
+        throw new HTTPEtcError(response.status, RUN_TIME_ERROR_MESSAGE);
     }
   }
 

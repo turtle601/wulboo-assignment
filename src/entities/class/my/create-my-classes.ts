@@ -28,8 +28,5 @@ export const useCreateMyClasses = () => {
       queryClient.invalidateQueries({ queryKey: [...classQueries.keys()] });
       queryClient.invalidateQueries({ queryKey: [...userQueries.keys()] });
     },
-    onError: (error) => {
-      console.log('onError', error);
-    },
   });
 };

@@ -12,7 +12,7 @@ export function MyCreatedClassForStudent() {
         <div className="list-none p-0 m-0 flex">
           <div
             className={cn(
-              'w-full flex justify-center items-center px-6 py-4 cursor-pointer transition-all border-b-2',
+              'w-full flex justify-center items-center px-6 py-4 cursor-pointer transition-all',
               {
                 'border-b-gray-900': true,
                 'text-gray-900': true,
@@ -24,8 +24,8 @@ export function MyCreatedClassForStudent() {
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-b-lg border border-gray-200 p-6 h-[480px] overflow-y-auto">
-        <div className="space-y-4 h-full">
+      <div className="bg-white rounded-b-lg border border-gray-200 h-full">
+        <div className="h-full">
           <Suspense
             fallback={
               <div className="flex justify-center items-center h-full w-full">
@@ -35,7 +35,6 @@ export function MyCreatedClassForStudent() {
           >
             <MyEnrolledClasses />
           </Suspense>
-          <div className="h-[20px]" />
         </div>
       </div>
     </div>

@@ -8,11 +8,87 @@ export interface UserType {
   isTeacher: boolean;
   createdAt: string;
   updatedAt: string;
-  enrolledCourses: ClassListType;
-  createdClasses: ClassListType;
+  enrolledCourseIds: string[];
+  createdClassIds: string[];
 }
 
-export const UserMap = new Map<string, UserType>();
+export class UserItem {
+  public id: string = '';
+  public username: string = '';
+  public email: string = '';
+  public tel: string = '';
+  public password: string = '';
+  public isStudent: boolean = false;
+  public isTeacher: boolean = false;
+  public createdAt: string = '';
+  public updatedAt: string = '';
+  public enrolledCourseIds: string[] = [];
+  public createdClassIds: string[] = [];
+
+  constructor(userItem: UserType) {
+    this.id = userItem.id;
+    this.username = userItem.username;
+    this.email = userItem.email;
+    this.tel = userItem.tel;
+    this.password = userItem.password;
+    this.isStudent = userItem.isStudent;
+    this.isTeacher = userItem.isTeacher;
+    this.createdAt = userItem.createdAt;
+    this.updatedAt = userItem.updatedAt;
+    this.enrolledCourseIds = userItem.enrolledCourseIds;
+    this.createdClassIds = userItem.createdClassIds;
+  }
+
+  setUserItem(userItem: UserType) {
+    this.id = userItem.id;
+    this.username = userItem.username;
+    this.email = userItem.email;
+    this.tel = userItem.tel;
+    this.password = userItem.password;
+    this.isStudent = userItem.isStudent;
+    this.isTeacher = userItem.isTeacher;
+    this.createdAt = userItem.createdAt;
+    this.updatedAt = userItem.updatedAt;
+    this.enrolledCourseIds = userItem.enrolledCourseIds;
+    this.createdClassIds = userItem.createdClassIds;
+  }
+
+  hasEnrolledCourseId(courseId: string) {
+    return this.enrolledCourseIds.includes(courseId);
+  }
+
+  hasCreatedClassId(classId: string) {
+    return this.createdClassIds.includes(classId);
+  }
+
+  public addEnrolledCourseId(courseId: string) {
+    this.enrolledCourseIds = [...this.enrolledCourseIds, courseId];
+  }
+
+  public addCreatedClassId(classId: string) {
+    this.createdClassIds = [...this.createdClassIds, classId];
+  }
+}
+
+export type UserListType = UserItem[];
+
+class UserStorage {
+  private userMap: Map<string, UserItem>;
+
+  constructor() {
+    this.userMap = new Map<string, UserItem>();
+  }
+
+  setUser(userItem: UserItem) {
+    this.userMap.set(userItem.id, userItem);
+  }
+
+  getUser(id: string) {
+    return this.userMap.get(id);
+  }
+}
+
+export { userStorage, classStorage };
 
 export interface ClassType {
   id: string;
@@ -25,40 +101,111 @@ export interface ClassType {
   updatedAt: string;
 }
 
-export type ClassListType = ClassType[];
+export class ClassItem {
+  public id: string = '';
+  public title: string = '';
+  public price: number = 0;
+  public instructor: string = '';
+  public enrolledUserIds: string[] = [];
+  public total: number = 0;
+  public createdAt: string = '';
+  public updatedAt: string = '';
 
-const generateClassList = (): ClassListType => {
-  const classes: ClassListType = [];
-  const now = new Date();
+  constructor(classItem: ClassType) {
+    this.id = classItem.id;
+    this.title = classItem.title;
+    this.price = classItem.price;
+    this.instructor = classItem.instructor;
+    this.enrolledUserIds = classItem.enrolledUserIds;
+    this.total = classItem.total;
+    this.createdAt = classItem.createdAt;
+  }
 
-  for (let i = 1; i <= 20; i++) {
-    const createdAt = new Date(now.getTime() - (i - 1) * 24 * 60 * 60 * 1000);
+  setClassItem(classItem: ClassType) {
+    this.id = classItem.id;
+    this.title = classItem.title;
+    this.price = classItem.price;
+    this.instructor = classItem.instructor;
+    this.enrolledUserIds = classItem.enrolledUserIds;
+    this.total = classItem.total;
+    this.createdAt = classItem.createdAt;
+  }
 
-    const total = 50 + i * 10;
-    const enrollmentRate = Math.min(0.1 + i * 0.05, 0.95);
-    const enrolledCount = Math.floor(total * enrollmentRate);
+  public addEnrolledUserId(userId: string) {
+    this.enrolledUserIds = [...this.enrolledUserIds, userId];
+  }
 
-    // enrolledUserIds 배열 생성 (각 클래스마다 고유한 user ID 생성)
-    const enrolledUserIds = Array.from(
-      { length: enrolledCount },
-      (_, index) => `user${index + 1}`
-    );
+  public removeEnrolledUserId(userId: string) {
+    this.enrolledUserIds = this.enrolledUserIds.filter((id) => id !== userId);
+  }
+}
 
-    classes.push({
-      id: `Class-${i}`,
-      title: `Class ${i}`,
-      price: i * 100000,
-      instructor: `Coach ${i}`,
-      enrolledUserIds: enrolledUserIds,
-      total: total,
-      createdAt: createdAt.toISOString(),
-      updatedAt: createdAt.toISOString(),
+class ClassStorage {
+  private classList: ClassItem[];
+
+  constructor() {
+    this.classList = [];
+    this.generateClassList();
+  }
+
+  getClassList() {
+    return this.classList;
+  }
+
+  addClassList(classItem: ClassItem) {
+    this.classList = [...this.classList, classItem];
+  }
+
+  removeClassList(id: string) {
+    this.classList = this.classList.filter((classItem) => classItem.id !== id);
+  }
+
+  addEnrolledUserId(id: string, userId: string) {
+    this.classList = this.classList.map((classItem) => {
+      if (classItem.id === id) {
+        classItem.addEnrolledUserId(userId);
+      }
+
+      return classItem;
     });
   }
 
-  return classes;
-};
+  selectClassItems(ids: string[]) {
+    return this.classList.filter((classItem) => ids.includes(classItem.id));
+  }
 
-export const classList: ClassListType = generateClassList();
+  generateClassList() {
+    const now = new Date();
 
-export const AUTH_TOKEN_COOKIE_NAME = 'AUTH_TOKEN_COOKIE_NAME' as const;
+    for (let i = 1; i <= 20; i++) {
+      const createdAt = new Date(now.getTime() - (i - 1) * 24 * 60 * 60 * 1000);
+
+      const total = 50 + i * 10;
+      const enrollmentRate = Math.min(0.1 + i * 0.05, 0.95);
+      const enrolledCount = Math.floor(total * enrollmentRate);
+
+      const enrolledUserIds = Array.from(
+        { length: enrolledCount },
+        (_, index) => `user${index + 1}`
+      );
+
+      const classItem = new ClassItem({
+        id: `Class-${i}`,
+        title: `Class ${i}`,
+        price: i * 100000,
+        instructor: `Coach ${i}`,
+        enrolledUserIds: enrolledUserIds,
+        total: total,
+        createdAt: createdAt.toISOString(),
+        updatedAt: createdAt.toISOString(), // Added missing required updatedAt field
+      });
+
+      this.addClassList(classItem);
+    }
+  }
+}
+
+export type ClassListType = ClassType[];
+
+const userStorage = new UserStorage();
+const classStorage = new ClassStorage();

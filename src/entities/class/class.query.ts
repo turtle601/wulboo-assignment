@@ -4,7 +4,7 @@ import {
   infiniteQueryOptions as tanstackInfiniteQueryOptions,
   queryOptions as tsqQueryOptions,
 } from '@tanstack/react-query';
-import { ClassListType } from '~/server/mocks/storage';
+import { ClassType } from '~/server/mocks/storage';
 
 import { requestAPI } from '~/src/shared/api/request';
 
@@ -17,7 +17,7 @@ export interface ClassListParams {
 export interface ClassListResponse {
   hasMore: boolean;
   nextCursor: string;
-  classes: ClassListType;
+  classes: ClassType[];
 }
 
 export const CLASS_LIST_LIMIT = '7' as const;
@@ -29,7 +29,6 @@ export const classQueries = {
   lists: () => [...classQueries.keys()],
   enroll: () => [...classQueries.keys(), 'enroll'],
   created: () => [...classQueries.keys(), 'myCreated'],
-
   list: (params: Record<string, string>, options: RequestInit) => {
     return tanstackInfiniteQueryOptions<
       ClassListResponse,
@@ -61,6 +60,8 @@ export const classQueries = {
       getNextPageParam: (lastPage: ClassListResponse) => {
         return lastPage.hasMore ? { cursor: lastPage.nextCursor } : undefined;
       },
+      // staleTime: 0,
+      // gcTime: 0,
     });
   },
 
@@ -68,7 +69,7 @@ export const classQueries = {
     return tsqQueryOptions({
       queryKey: [...classQueries.keys(), ...classQueries.enroll()],
       queryFn: async () => {
-        return await requestAPI<ClassListType>({
+        return await requestAPI<ClassType[]>({
           url: '/classes/enroll',
           options: {
             method: 'GET',
@@ -83,7 +84,7 @@ export const classQueries = {
     return tsqQueryOptions({
       queryKey: [...classQueries.keys(), ...classQueries.created()],
       queryFn: async () => {
-        return await requestAPI<ClassListType | { message: string }>({
+        return await requestAPI<ClassType[] | { message: string }>({
           url: '/classes/myCreated',
           options: {
             method: 'GET',

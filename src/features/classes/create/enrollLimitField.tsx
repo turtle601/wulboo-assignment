@@ -32,7 +32,6 @@ export function EnrollLimitField({
             setEnrolledUserLimitErrorMessage(errorMessage || '');
           },
           onFocus: (errorMessage) => {
-            console.log(errorMessage, 'errorMessage');
             setEnrolledUserLimitErrorMessage(errorMessage || '');
           },
           customValidateFnList: validateFn,

@@ -6,17 +6,23 @@ import { Card } from '~/src/shared/ui/card';
 export function MyEnrolledClasses() {
   const { data: enrolledClasses } = useGetMyEnrolledClasses();
 
-  if (!enrolledClasses || enrolledClasses.length === 0) {
-    return <div>등록된 강의가 없습니다.</div>;
+  if (!enrolledClasses || (enrolledClasses && enrolledClasses.length === 0)) {
+    return (
+      <div className="flex justify-center items-center h-[400px] w-full">
+        수강한 강의가 없습니다.
+      </div>
+    );
   }
 
   return (
-    <ul className="flex flex-col gap-4">
-      {enrolledClasses?.map((classItem) => (
-        <Card.wrapper key={classItem.id}>
-          <ClassContentUI course={classItem} />
-        </Card.wrapper>
-      ))}
-    </ul>
+    <div className="flex flex-col gap-4 h-full">
+      <ul>
+        {enrolledClasses?.map((classItem) => (
+          <Card.wrapper key={classItem.id}>
+            <ClassContentUI course={classItem} />
+          </Card.wrapper>
+        ))}
+      </ul>
+    </div>
   );
 }

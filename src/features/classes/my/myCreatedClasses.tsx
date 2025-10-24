@@ -11,20 +11,22 @@ export function MyCreatedClasses() {
   }
 
   if (!myCreatedClasses || myCreatedClasses.length === 0) {
-    return <div>등록한 강의가 없습니다.</div>;
+    return (
+      <div className="flex justify-center items-center h-[400px] w-full">
+        개설한 강의가 없습니다.
+      </div>
+    );
   }
 
   return (
-    <>
-      <ul>
+    <div className="h-full overflow-y-auto">
+      <div className="flex flex-col gap-4">
         {myCreatedClasses?.map((classItem) => (
           <Card.wrapper key={classItem.id}>
-            <Card.content>
-              <ClassContentUI course={classItem} />
-            </Card.content>
+            <ClassContentUI course={classItem} />
           </Card.wrapper>
         ))}
-      </ul>
-    </>
+      </div>
+    </div>
   );
 }

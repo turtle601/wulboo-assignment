@@ -1,7 +1,7 @@
 export const validatePasswordLength = (element: HTMLInputElement) => {
   const value = element.value;
 
-  if (value.length <= 6 || value.length >= 10) {
+  if (value.length < 6 || value.length > 10) {
     return true;
   }
 

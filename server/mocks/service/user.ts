@@ -1,8 +1,4 @@
-import {
-  AUTH_TOKEN_COOKIE_NAME,
-  UserMap,
-  UserType,
-} from '~/server/mocks/storage';
+import { UserItem, userStorage } from '~/server/mocks/storage';
 
 export interface UserRequestBodyType {
   username: string;
@@ -30,7 +26,7 @@ export const getAuthUser = (cookie: Record<string, string>) => {
     };
   }
 
-  const user = UserMap.get(authToken);
+  const user = userStorage.getUser(authToken);
 
   if (!user) {
     return { status: 403 };
@@ -40,7 +36,7 @@ export const getAuthUser = (cookie: Record<string, string>) => {
 };
 
 export const createUser = (userData: UserRequestBodyType) => {
-  const newUser: UserType = {
+  const newUser: UserItem = new UserItem({
     id: new Date().getTime().toString(),
     username: userData.username,
     email: userData.email,
@@ -48,13 +44,13 @@ export const createUser = (userData: UserRequestBodyType) => {
     password: userData.password,
     isStudent: userData.isStudent,
     isTeacher: userData.isTeacher,
-    enrolledCourses: [],
-    createdClasses: [],
+    enrolledCourseIds: [],
+    createdClassIds: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  };
+  });
 
-  UserMap.set(AUTH_TOKEN_COOKIE_NAME, newUser);
+  userStorage.setUser(newUser);
 
   return {
     user: newUser,

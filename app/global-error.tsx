@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+
 import { RUN_TIME_ERROR_MESSAGE } from '~/src/shared/api';
 
 export default function Error({ error }: { error: Error }) {

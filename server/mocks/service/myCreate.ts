@@ -1,3 +1,4 @@
+import { ClassItem } from '~/server/mocks/storage';
 import { formatNumber } from '~/src/shared/ui/textField/numberInput';
 
 export const checkMyCreateClassBodyData = (
@@ -19,7 +20,7 @@ export const makeClassData = ({
 }) => {
   const id = new Date().getTime().toString();
 
-  return {
+  const classData = {
     id,
     title: courseData['course-title'],
     price: parseInt(formatNumber(courseData['course-price'])) || 0,
@@ -29,4 +30,6 @@ export const makeClassData = ({
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+
+  return new ClassItem(classData);
 };

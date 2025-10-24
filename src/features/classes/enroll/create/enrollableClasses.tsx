@@ -63,7 +63,7 @@ export function EnrollableClasses() {
           >
             {data?.pages.map((page) => (
               <div key={page.nextCursor}>
-                {page.classes.map((classItem) => (
+                {page.classes?.map((classItem) => (
                   <CheckboxGroup.Button
                     isChecked={selectedIds.includes(classItem.id)}
                     key={classItem.id}

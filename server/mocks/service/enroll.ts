@@ -1,27 +1,23 @@
-import { classList, ClassType, UserType } from '~/server/mocks/storage';
+import { classStorage, UserItem, userStorage } from '~/server/mocks/storage';
 
 export const enrollCourses = ({
   courseIds,
   user,
 }: {
   courseIds: string[];
-  user: UserType;
+  user: UserItem;
 }) => {
-  const validCourses = classList?.filter((classListItem: ClassType) => {
-    return courseIds?.includes(classListItem.id);
-  });
+  courseIds.forEach((courseId) => {
+    const classList = classStorage.getClassList();
+    const classItem = classList.find((item) => item.id === courseId);
 
-  for (const classItem of classList) {
-    if (courseIds.includes(classItem.id)) {
-      if (classItem.enrolledUserIds.length < classItem.total) {
-        classItem.enrolledUserIds = [
-          ...new Set([...classItem.enrolledUserIds, user.id]),
-        ];
+    if (classItem && classItem.enrolledUserIds.length < classItem.total) {
+      if (!classItem.enrolledUserIds.includes(user.id)) {
+        classStorage.addEnrolledUserId(courseId, user.id);
+
+        user.addEnrolledCourseId(courseId);
+        userStorage.setUser(user);
       }
     }
-  }
-
-  user.enrolledCourses = [
-    ...new Set([...user.enrolledCourses, ...validCourses]),
-  ];
+  });
 };

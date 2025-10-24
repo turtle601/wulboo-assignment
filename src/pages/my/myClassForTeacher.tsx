@@ -1,12 +1,11 @@
 'use client';
 
-import { Suspense } from 'react';
 import {
   MyCreatedClasses,
   MyEnrolledClasses,
   useMySearchParams,
 } from '~/src/features/classes/my';
-import { Spinner } from '~/src/shared/ui/spinner';
+
 import { Tabs } from '~/src/shared/ui/tabs';
 
 export function MyClassForTeacher() {
@@ -26,20 +25,12 @@ export function MyClassForTeacher() {
           </Tabs.TabList>
         </div>
 
-        <Tabs.TabPanels className="bg-white rounded-b-lg border border-gray-200 p-6 h-[480px]">
-          <Tabs.TabPanel className="space-y-4 h-full">
+        <Tabs.TabPanels className="bg-white rounded-b-lg border border-gray-200 p-6 h-[424px] overflow-auto">
+          <Tabs.TabPanel className="h-full">
             <MyEnrolledClasses />
           </Tabs.TabPanel>
-          <Tabs.TabPanel className="space-y-4 h-full">
-            <Suspense
-              fallback={
-                <div className="flex justify-center items-center h-full w-full">
-                  <Spinner />
-                </div>
-              }
-            >
-              <MyCreatedClasses />
-            </Suspense>
+          <Tabs.TabPanel className="h-full">
+            <MyCreatedClasses />
           </Tabs.TabPanel>
         </Tabs.TabPanels>
       </Tabs.Provider>

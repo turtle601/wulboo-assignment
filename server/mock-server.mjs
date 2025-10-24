@@ -3,20 +3,19 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import {
   checkCourseFilterParams,
-  checkMyCreated,
-  checkMyEnrolled,
   filterCreatedAtSortBy,
   filterEnrollCountSortBy,
   filterEnrollRatioSortBy,
   filterPagination,
 } from './mocks/service/courses.js';
+
 import { createUser, getAuthUser } from './mocks/service/user.js';
-import { enrollCourses } from './mocks/service/enroll.js';
+
 import {
   checkMyCreateClassBodyData,
   makeClassData,
 } from './mocks/service/myCreate.js';
-import { AUTH_TOKEN_COOKIE_NAME, classList } from './mocks/storage.js';
+import { classStorage } from './mocks/storage.js';
 
 const app = express();
 const PORT = 9090;
@@ -58,7 +57,7 @@ app.post('/api/user', async (req, res) => {
 
     const response = createUser(req.body);
 
-    res.cookie('authToken', AUTH_TOKEN_COOKIE_NAME, {
+    res.cookie('authToken', response.user.id, {
       httpOnly: true,
       secure: false,
       path: '/',
@@ -72,9 +71,9 @@ app.post('/api/user', async (req, res) => {
   }
 });
 
-// =============================
-// Classes Handlers
-// =============================
+// // =============================
+// // Classes Handlers
+// // =============================
 
 // GET /api/classes (MSW: http.get(`/classes`))
 app.get('/api/classes', async (req, res) => {
@@ -85,28 +84,27 @@ app.get('/api/classes', async (req, res) => {
   }
 
   if (!checkCourseFilterParams(req.query)) {
-    // 🚨 400 에러가 여기서 발생합니다.
     return res.sendStatus(400);
   }
 
-  // 필터링 및 정렬 로직은 그대로 유지
-  const sortedClasses = classList.filter(
-    (classListItem) =>
-      !checkMyCreated(classListItem, authResponse.user) &&
-      !checkMyEnrolled(classListItem, authResponse.user)
-  );
+  const classList = classStorage.getClassList().filter((classItem) => {
+    return (
+      !authResponse.user.hasEnrolledCourseId(classItem.id) ||
+      !authResponse.user.hasCreatedClassId(classItem.id)
+    );
+  });
 
   const filterParams = req.query.filter;
 
-  filterCreatedAtSortBy(filterParams, sortedClasses);
-  filterEnrollCountSortBy(filterParams, sortedClasses);
-  filterEnrollRatioSortBy(filterParams, sortedClasses);
+  filterCreatedAtSortBy(filterParams, classList);
+  filterEnrollCountSortBy(filterParams, classList);
+  filterEnrollRatioSortBy(filterParams, classList);
 
   const limit = parseInt(req.query.limit ?? '10');
   const cursor = req.query.cursor || undefined;
 
-  const response = filterPagination({
-    courseList: sortedClasses,
+  const { courseList, nextCursor } = filterPagination({
+    courseList: classList,
     limit: limit,
     cursor: cursor,
   });
@@ -114,7 +112,12 @@ app.get('/api/classes', async (req, res) => {
   // MSW의 지연 시간 처리 (Express에서도 가능)
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  return res.status(200).json(response);
+  // 클라이언트가 기대하는 형태로 응답 구조 변경
+  return res.status(200).json({
+    classes: courseList, // courseList -> classes로 변경
+    hasMore: nextCursor !== null, // hasMore 필드 추가
+    nextCursor: nextCursor || '', // nextCursor가 null이면 빈 문자열로
+  });
 });
 
 // POST /api/classes/enroll (MSW: http.post(`/classes/enroll`))
@@ -125,8 +128,20 @@ app.post('/api/classes/enroll', async (req, res) => {
     return res.sendStatus(response.status);
   }
 
-  // MSW의 request.json() 대신 req.body 사용
-  enrollCourses({ courseIds: req.body, user: response.user });
+  const courseIds = req.body;
+
+  courseIds.forEach((courseId) => {
+    const classList = classStorage.getClassList();
+    const classItem = classList.find((item) => item.id === courseId);
+
+    if (classItem && classItem.enrolledUserIds.length < classItem.total) {
+      if (!classItem.enrolledUserIds.includes(response.user.id)) {
+        classStorage.addEnrolledUserId(courseId, response.user.id);
+
+        response.user.addEnrolledCourseId(courseId);
+      }
+    }
+  });
 
   return res.status(201).json({
     message: '강의 신청이 완료되었습니다.',
@@ -141,7 +156,12 @@ app.get('/api/classes/enroll', async (req, res) => {
     return res.sendStatus(response.status);
   }
 
-  return res.status(200).json([...response.user.enrolledCourses]);
+  const allClasses = classStorage.getClassList();
+  const enrolledClasses = allClasses.filter((classItem) =>
+    response.user.enrolledCourseIds.includes(classItem.id)
+  );
+
+  return res.status(200).json([...enrolledClasses]);
 });
 
 // GET /api/classes/myCreated (MSW: http.get(`/classes/myCreated`))
@@ -153,7 +173,13 @@ app.get('/api/classes/myCreated', async (req, res) => {
   }
 
   if (response.user.isTeacher) {
-    return res.status(200).json([...response.user.createdClasses]);
+    const createdClasses = classStorage
+      .getClassList()
+      .filter((classItem) =>
+        response.user.createdClassIds.includes(classItem.id)
+      );
+
+    return res.status(200).json(createdClasses);
   }
 
   if (response.user.isStudent) {
@@ -185,8 +211,8 @@ app.post('/api/classes/create', async (req, res) => {
       username: response.user.username,
     });
 
-    classList.push(newClass);
-    response.user.createdClasses.push(newClass);
+    classStorage.addClassList(newClass);
+    response.user.addCreatedClassId(newClass.id);
 
     return res.status(201).json({
       message: '강의 개설이 완료되었습니다.',

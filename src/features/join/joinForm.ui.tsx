@@ -31,12 +31,14 @@ export const JoinForm = () => {
       }}
       noValidate
     >
-      <UsernameField register={register} />
-      <EmailField register={register} />
-      <TelField register={register} />
-      <PasswordField register={register} />
-      <div className="mt-4">
-        <UserTypeField register={register} />
+      <div className="flex flex-col gap-4 overflow-y-auto h-[340px]">
+        <UsernameField register={register} />
+        <EmailField register={register} />
+        <TelField register={register} />
+        <PasswordField register={register} />
+        <div className="mt-4">
+          <UserTypeField register={register} />
+        </div>
       </div>
 
       <div className="mt-4">
