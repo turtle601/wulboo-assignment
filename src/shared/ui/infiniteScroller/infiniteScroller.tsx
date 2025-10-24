@@ -3,7 +3,7 @@ import React, { forwardRef, useCallback, useEffect, useRef } from 'react';
 interface InfiniteScrollProps extends React.HTMLAttributes<HTMLDivElement> {
   fetchNextPage: () => Promise<unknown>;
   hasNextPage: boolean | undefined;
-  isLoading: boolean;
+  isFetchingNextPage: boolean;
   loadingFallback: React.ReactNode;
   threshold?: number;
   rootMargin?: string;
@@ -14,7 +14,7 @@ export const InfiniteScroller = forwardRef<HTMLDivElement, InfiniteScrollProps>(
     {
       fetchNextPage,
       hasNextPage,
-      isLoading,
+      isFetchingNextPage,
       loadingFallback,
       threshold = 0.1,
       rootMargin = '100px',
@@ -29,11 +29,11 @@ export const InfiniteScroller = forwardRef<HTMLDivElement, InfiniteScrollProps>(
       (entries: IntersectionObserverEntry[]) => {
         const [entry] = entries;
 
-        if (entry?.isIntersecting && hasNextPage && !isLoading) {
+        if (entry?.isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
-      [hasNextPage, fetchNextPage, isLoading]
+      [hasNextPage, fetchNextPage, isFetchingNextPage]
     );
 
     useEffect(() => {
@@ -55,12 +55,14 @@ export const InfiniteScroller = forwardRef<HTMLDivElement, InfiniteScrollProps>(
     return (
       <div ref={ref} {...props}>
         {children}
-        {isLoading && loadingFallback}
-        <div
-          ref={observerTarget}
-          aria-hidden="true"
-          style={{ height: '5px' }}
-        />
+        {isFetchingNextPage && loadingFallback}
+        {hasNextPage && (
+          <div
+            ref={observerTarget}
+            aria-hidden="true"
+            style={{ height: '5px' }}
+          />
+        )}
       </div>
     );
   }
