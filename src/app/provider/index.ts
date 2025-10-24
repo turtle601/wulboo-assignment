@@ -1,2 +1,2 @@
 export * from './queryClientProvider';
-export * from './hydrationBoundary';
+export * from './hydrationPrefetchBoundary';

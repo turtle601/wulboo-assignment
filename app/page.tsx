@@ -1,16 +1,23 @@
-import { JoinForm } from '~/src/features/join/joinForm.ui';
-import { Header } from '~/src/widgets/header';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-export default function Home() {
-  return (
-    <>
-      <Header />
-      <main className="mt-4">
-        <h1 className="text-[20px] font-bold items-center">회원가입</h1>
-        <section className="mt-4">
-          <JoinForm />
-        </section>
-      </main>
-    </>
-  );
+import { Join } from '~/src/pages/join';
+import { API_BASE_URL } from '~/src/shared/api';
+
+export default async function Home() {
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get('authToken');
+
+  const userResponse = await fetch(`${API_BASE_URL}/user`, {
+    method: 'GET',
+    headers: {
+      Cookie: `authToken=${authToken?.value || ''}`,
+    },
+  });
+
+  if (userResponse.ok) {
+    redirect('/courses');
+  }
+
+  return <Join />;
 }
