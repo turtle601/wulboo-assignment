@@ -4,8 +4,12 @@ import { useCheckboxGroup } from '~/src/shared/ui/checkboxGroup/wrapper';
 import { cn } from '~/src/shared/utils/style';
 
 export interface CheckboxGroupButtonProps
-  extends Omit<React.ComponentProps<'input'>, 'id' | 'onClick' | 'children'> {
+  extends Omit<
+    React.ComponentProps<'input'>,
+    'id' | 'onClick' | 'children' | 'checked'
+  > {
   id: string;
+  isChecked?: boolean;
   onClick?: (id: string) => void;
   children: React.ReactNode | ((isChecked: boolean) => React.ReactNode);
   drawActiveStyle?: (
@@ -17,6 +21,7 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
   (
     {
       id,
+      isChecked,
       className,
       onClick,
       value,
@@ -29,7 +34,7 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
   ) => {
     const { activeIds, toggleId, name } = useCheckboxGroup();
 
-    const isChecked = activeIds.includes(id);
+    const checked = isChecked ?? activeIds.includes(id);
 
     const handleClick = () => {
       if (disabled) return;
@@ -46,7 +51,7 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
           name={name}
           value={value}
           id={id}
-          checked={isChecked}
+          checked={checked}
           disabled={disabled}
           ref={ref}
           onChange={(e) => {
@@ -59,13 +64,13 @@ export const Button = forwardRef<HTMLInputElement, CheckboxGroupButtonProps>(
             'w-full transition-all duration-200',
             'disabled:opacity-80 disabled:cursor-not-allowed',
             'disabled:[&_*]:opacity-80 disabled:[&_*]:cursor-not-allowed',
-            drawActiveStyle?.(isChecked),
+            drawActiveStyle?.(checked),
             className
           )}
           disabled={disabled}
           onClick={handleClick}
         >
-          {typeof children === 'function' ? children(isChecked) : children}
+          {typeof children === 'function' ? children(checked) : children}
         </button>
       </div>
     );
