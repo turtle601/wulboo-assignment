@@ -1,6 +1,6 @@
 // mocks/service/courses.ts
 
-import { ClassType, UserType } from '../storage.js';
+import { ClassItem } from '~/server/mocks/storage';
 
 /**
  * GET /api/classes의 쿼리 파라미터 유효성을 검사합니다.
@@ -16,7 +16,7 @@ export function checkCourseFilterParams(
   return true;
 }
 
-export function filterCreatedAtSortBy(filter: string, classList: ClassType[]) {
+export function filterCreatedAtSortBy(filter: string, classList: ClassItem[]) {
   if (filter === 'createdAtSortBy') {
     classList.sort(
       (a, b) =>
@@ -27,7 +27,7 @@ export function filterCreatedAtSortBy(filter: string, classList: ClassType[]) {
 
 export function filterEnrollCountSortBy(
   filter: string,
-  classList: ClassType[]
+  classList: ClassItem[]
 ) {
   if (filter === 'enrollCountSortBy') {
     classList.sort(
@@ -38,7 +38,7 @@ export function filterEnrollCountSortBy(
 
 export function filterEnrollRatioSortBy(
   filter: string,
-  classList: ClassType[]
+  classList: ClassItem[]
 ) {
   if (filter === 'enrollRatioSortBy') {
     classList.sort((a, b) => {
@@ -57,10 +57,10 @@ export function filterPagination({
   limit,
   cursor,
 }: {
-  courseList: ClassType[];
+  courseList: ClassItem[];
   limit: number;
   cursor?: string;
-}): { courseList: ClassType[]; nextCursor: string | null } {
+}): { courseList: ClassItem[]; nextCursor: string | null } {
   let startIndex = 0;
 
   // 커서 기반 페이지네이션

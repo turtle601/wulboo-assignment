@@ -1,8 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createServerRequestOptions } from '~/app/courses/page';
-import { HydrationPrefetchBoundary } from '~/src/app/provider';
-import { classQueries } from '~/src/entities/class/class.query';
+import { MyPage } from '~/src/pages/my';
+
 import { MyClassForTeacher } from '~/src/pages/my/myClassForTeacher';
 import { MyCreatedClassForStudent } from '~/src/pages/my/myCreatedClassForStudent';
 
@@ -24,45 +23,5 @@ export default async function MyCoursePage() {
     return null;
   }
 
-  const user = await userResponse.json();
-
-  const serverForMyEnrolledListRequestOptions =
-    await createServerRequestOptions({
-      headers: {
-        Cookie: `authToken=${authToken?.value || ''}`,
-      },
-    });
-
-  const serverForMyCreatedListRequestOptions = await createServerRequestOptions(
-    {
-      headers: {
-        Cookie: `authToken=${authToken?.value || ''}`,
-      },
-    }
-  );
-
-  if (!user.isTeacher) {
-    return (
-      <HydrationPrefetchBoundary
-        fetchQueryOptions={[
-          classQueries.myEnrolledList(serverForMyEnrolledListRequestOptions),
-        ]}
-      >
-        <MyCreatedClassForStudent />
-      </HydrationPrefetchBoundary>
-    );
-  }
-
-  if (user.isTeacher) {
-    return (
-      <HydrationPrefetchBoundary
-        fetchQueryOptions={[
-          classQueries.myEnrolledList(serverForMyEnrolledListRequestOptions),
-          classQueries.myCreatedList(serverForMyCreatedListRequestOptions),
-        ]}
-      >
-        <MyClassForTeacher />
-      </HydrationPrefetchBoundary>
-    );
-  }
+  return <MyPage />;
 }

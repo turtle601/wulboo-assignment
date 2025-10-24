@@ -61,6 +61,7 @@ app.post('/api/user', async (req, res) => {
       httpOnly: true,
       secure: false,
       path: '/',
+      maxAge: 60 * 60 * 24 * 30,
     });
 
     return res.status(response.status).json({

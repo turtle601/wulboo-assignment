@@ -13,7 +13,7 @@ export function Menu() {
   const isTeacher = user?.isTeacher;
 
   return (
-    <div>
+    <nav>
       {isLoggedIn && (
         <div className="flex items-center gap-2">
           {pathname?.startsWith('/courses/my') ? (
@@ -34,7 +34,7 @@ export function Menu() {
           )}
         </div>
       )}
-    </div>
+    </nav>
   );
 }
 
