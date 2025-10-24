@@ -1,4 +1,29 @@
-import { API_BASE_URL } from '~/src/shared/api/constant';
+import {
+  API_BASE_URL,
+  FORBIDDEN_ERROR_MESSAGE,
+  REQUEST_ERROR_MESSAGE,
+  RUN_TIME_ERROR_MESSAGE,
+  UNAUTHORIZED_ERROR_MESSAGE,
+  USER_EXISTS_ERROR_MESSAGE,
+} from '~/src/shared/api/constant';
+import {
+  HTTP401Error,
+  HTTP403Error,
+  HTTP409Error,
+  HTTP500Error,
+  HTTPEtcError,
+  UnExpectedAPIError,
+} from './error';
+
+export const createClientRequestOptions = (
+  options: RequestInit = {}
+): RequestInit => ({
+  ...options,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(options.headers || {}),
+  },
+});
 
 interface ReqParams {
   url: string;
@@ -6,7 +31,7 @@ interface ReqParams {
   options?: RequestInit;
 }
 
-export const requestAPI = <T>({
+export const requestAPI = async <T>({
   url,
   params,
   options,
@@ -15,18 +40,28 @@ export const requestAPI = <T>({
     ? `${API_BASE_URL}${url}?${params.toString()}`
     : `${API_BASE_URL}${url}`;
 
-  return new Promise((resolve, reject) => {
-    fetch(fullUrl, options)
-      .then((response) => {
-        if (!response.ok) {
-          reject('API 요청 에러 발생');
-        }
+  const fetchOptions = options || createClientRequestOptions();
 
-        return response.json();
-      })
-      .then((data: T) => resolve(data))
-      .catch((error) => {
-        reject('네트워크 에러 발생');
-      });
-  });
+  const response = await fetch(fullUrl, fetchOptions);
+
+  if (!response.ok) {
+    switch (response.status) {
+      case 401:
+        throw new HTTP401Error(UNAUTHORIZED_ERROR_MESSAGE);
+      case 403:
+        throw new HTTP403Error(FORBIDDEN_ERROR_MESSAGE);
+      case 409:
+        throw new HTTP409Error(USER_EXISTS_ERROR_MESSAGE);
+      case 500:
+        throw new HTTP500Error(RUN_TIME_ERROR_MESSAGE);
+      default:
+        throw new HTTPEtcError(response.status, REQUEST_ERROR_MESSAGE);
+    }
+  }
+
+  try {
+    return await response.json();
+  } catch (error: unknown) {
+    throw new UnExpectedAPIError({ error: error as unknown });
+  }
 };
