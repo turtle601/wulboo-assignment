@@ -45,7 +45,7 @@ const generateClassList = (): ClassListType => {
     );
 
     classes.push({
-      id: `${new Date().getTime().toString()}-${i}`,
+      id: `Class-${i}`,
       title: `Class ${i}`,
       price: i * 100000,
       instructor: `Coach ${i}`,
@@ -60,3 +60,5 @@ const generateClassList = (): ClassListType => {
 };
 
 export const classList: ClassListType = generateClassList();
+
+export const AUTH_TOKEN_COOKIE_NAME = 'AUTH_TOKEN_COOKIE_NAME' as const;

@@ -1,8 +1,9 @@
-import { ClassType } from '~/server/mocks/storage';
+import { ClassType, UserType } from '~/server/mocks/storage';
 
-export const checkCourseFilterParams = (url: URL) => {
-  return url.searchParams
-    ?.entries()
+export const checkCourseFilterParams = (
+  searchParams: Record<string, string>
+) => {
+  return Object.entries(searchParams)
     .filter(([key]) => {
       return !['limit', 'cursor'].includes(key);
     })
@@ -49,6 +50,14 @@ export const filterEnrollRatioSortBy = (
       );
     });
   }
+};
+
+export const checkMyCreated = (classItem: ClassType, user: UserType) => {
+  return classItem.instructor === user.username;
+};
+
+export const checkMyEnrolled = (classItem: ClassType, user: UserType) => {
+  return classItem.enrolledUserIds.includes(user.id);
 };
 
 export const filterPagination = ({

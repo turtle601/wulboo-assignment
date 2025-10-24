@@ -1,10 +1,12 @@
+import { formatNumber } from '~/src/shared/ui/textField/numberInput';
+
 export const checkMyCreateClassBodyData = (
   courseData: Record<string, string>
 ) => {
   return (
     courseData['course-title'] &&
     courseData['course-price'] &&
-    courseData['course-total']
+    courseData['course-enrolled-total']
   );
 };
 
@@ -20,10 +22,10 @@ export const makeClassData = ({
   return {
     id,
     title: courseData['course-title'],
-    price: Number(courseData['course-price']),
+    price: parseInt(formatNumber(courseData['course-price'])) || 0,
     instructor: username,
     enrolledUserIds: [],
-    total: Number(courseData['course-total']),
+    total: parseInt(formatNumber(courseData['course-enrolled-total'])) || 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

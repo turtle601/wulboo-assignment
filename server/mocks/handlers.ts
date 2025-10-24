@@ -9,9 +9,13 @@ import {
   checkMyCreateClassBodyData,
   makeClassData,
 } from '~/server/mocks/service/myCreate';
+
 import { createUser, getAuthUser } from '~/server/mocks/service/user';
+
 import {
   checkCourseFilterParams,
+  checkMyCreated,
+  checkMyEnrolled,
   filterCreatedAtSortBy,
   filterEnrollCountSortBy,
   filterEnrollRatioSortBy,
@@ -29,13 +33,14 @@ export const userHandlers = [
     async ({ request }: { request: StrictRequest<UserRequestBodyType> }) => {
       const userData = await request.json();
       const response = createUser(userData);
-
       try {
         return HttpResponse.json(
           {},
           {
             status: response.status,
-            headers: { 'Set-Cookie': `authToken=${response.user.id}` },
+            headers: {
+              'Set-Cookie': `authToken=${response.user.id};`,
+            },
           }
         );
       } catch (error: unknown) {
@@ -46,13 +51,24 @@ export const userHandlers = [
 ];
 
 export const classesHandlers = [
-  http.get(`/classList`, async ({ request }) => {
+  http.get(`/classes`, async ({ request, cookies }) => {
+    const authResponse = getAuthUser(cookies);
+
+    if (!authResponse.user) {
+      return HttpResponse.json({}, authResponse);
+    }
+
     const url = new URL(request.url);
 
-    if (!checkCourseFilterParams(url))
+    if (!checkCourseFilterParams(Object.fromEntries(url.searchParams)))
       return HttpResponse.json({}, { status: 400 });
 
-    const sortedClasses = [...classList];
+    const sortedClasses = classList.filter(
+      (classListItem) =>
+        !checkMyCreated(classListItem, authResponse.user) &&
+        !checkMyEnrolled(classListItem, authResponse.user)
+    );
+
     const filterParams = url.searchParams.get('filter');
 
     filterCreatedAtSortBy(filterParams, sortedClasses);
@@ -65,13 +81,18 @@ export const classesHandlers = [
       cursor: url.searchParams.get('cursor') || undefined,
     });
 
-    return HttpResponse.json(response, { status: 200 });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    return HttpResponse.json(response, {
+      status: 200,
+    });
   }),
 
   http.post<never, string[], JsonBodyType>(
     `/classes/enroll`,
     async ({ request, cookies }) => {
       const response = getAuthUser(cookies);
+      
 
       if (!response.user) {
         return HttpResponse.json({}, response);

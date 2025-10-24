@@ -1,4 +1,8 @@
-import { UserMap, UserType } from '~/server/mocks/storage';
+import {
+  AUTH_TOKEN_COOKIE_NAME,
+  UserMap,
+  UserType,
+} from '~/server/mocks/storage';
 
 export interface UserRequestBodyType {
   username: string;
@@ -50,7 +54,7 @@ export const createUser = (userData: UserRequestBodyType) => {
     updatedAt: new Date().toISOString(),
   };
 
-  UserMap.set(newUser.id, newUser);
+  UserMap.set(AUTH_TOKEN_COOKIE_NAME, newUser);
 
   return {
     user: newUser,
