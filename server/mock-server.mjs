@@ -90,7 +90,7 @@ app.get('/api/classes', async (req, res) => {
 
   const classList = classStorage.getClassList().filter((classItem) => {
     return (
-      !authResponse.user.hasEnrolledCourseId(classItem.id) ||
+      !authResponse.user.hasEnrolledCourseId(classItem.id) &&
       !authResponse.user.hasCreatedClassId(classItem.id)
     );
   });
