@@ -24,7 +24,7 @@ export function MyCreatedClassForStudent() {
           </div>
         </div>
       </div>
-      <div className="bg-white rounded-b-lg border border-gray-200 h-full">
+      <div className="bg-white rounded-b-lg border border-gray-200 h-[424px] overflow-auto">
         <div className="h-full">
           <Suspense
             fallback={

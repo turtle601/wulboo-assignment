@@ -15,8 +15,8 @@ export function MyEnrolledClasses() {
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      <ul>
+    <div className="h-full overflow-y-auto">
+      <ul className="flex flex-col gap-4">
         {enrolledClasses?.map((classItem) => (
           <Card.wrapper key={classItem.id}>
             <ClassContentUI course={classItem} />
