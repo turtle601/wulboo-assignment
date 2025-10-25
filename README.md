@@ -3,6 +3,12 @@
 - **프론트엔드**: Next.js 15, Tailwind CSS v4, Storybook, Zustand, TanStack Query
 - **백엔드**: Express, Cookie Parser
 
+## 실행 환경 
+
+```
+node -v // v22.17.0
+```
+
 ## 실행 방법
 
 ### Mock 서버 실행
