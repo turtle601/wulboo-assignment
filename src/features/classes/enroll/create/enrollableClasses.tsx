@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { cn } from '~/src/shared/utils/style';
 
 import {
@@ -8,7 +9,7 @@ import {
 } from '~/src/features/classes/enroll/create/useClassesSortByParams';
 
 import { CheckboxGroup } from '~/src/shared/ui/checkboxGroup';
-import { InfiniteScroller } from '~/src/shared/ui/infiniteScroller';
+import { VirtualInfiniteScroller } from '~/src/shared/ui/infiniteScroller';
 import { useGetInfiniteClasses } from '~/src/entities/class/get-classes';
 
 import { Card } from '~/src/shared/ui/card';
@@ -18,6 +19,7 @@ import { useScrollTo } from '~/src/shared/hooks/useScrollTo/useScrollTo';
 import { useSelectIds } from '~/src/shared/hooks/useSelectIds';
 import { EnrollableClassesOptions } from '~/src/features/classes/enroll/create/erollableClassesOptions';
 import { CreateEnrollClassesButton } from '~/src/features/classes/enroll/create/createEnrollClassesButton';
+import type { ClassType } from '~/server/mocks/storage';
 
 export function EnrollableClasses() {
   const { filterParams, filterClassesSortBy, getDefaultClassesSearchParams } =
@@ -33,6 +35,11 @@ export function EnrollableClasses() {
 
   const { selectedIds, toggleSelectedId, clearSelectedIds } = useSelectIds();
 
+  // 모든 페이지의 클래스들을 하나의 배열로 평탄화
+  const flattenedClasses = useMemo(() => {
+    return data?.pages.flatMap((page) => page.classes || []) || [];
+  }, [data?.pages]);
+
   const handleSortChange = (sortType: ClassesSortByType) => {
     filterClassesSortBy(sortType);
     clearSelectedIds();
@@ -46,59 +53,59 @@ export function EnrollableClasses() {
         onSortChange={handleSortChange}
       />
 
-      <div ref={scrollRef} className="w-full max-h-[500px] overflow-y-auto">
-        <InfiniteScroller
-          fetchNextPage={fetchNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          hasNextPage={hasNextPage}
-          loadingFallback={
-            <div className="flex justify-center items-center h-[100px] w-full">
-              <Spinner />
-            </div>
-          }
+      <div ref={scrollRef} className="w-full max-h-[400px]">
+        <CheckboxGroup.Wrapper
+          name="course-list"
+          defaultActiveIds={[...selectedIds]}
         >
-          <CheckboxGroup.Wrapper
-            name="course-list"
-            defaultActiveIds={[...selectedIds]}
-          >
-            {data?.pages.map((page) => (
-              <div key={page.nextCursor}>
-                {page.classes?.map((classItem) => (
-                  <CheckboxGroup.Button
-                    isChecked={selectedIds.includes(classItem.id)}
-                    key={classItem.id}
-                    id={classItem.id}
-                    value={classItem.id}
-                    onClick={() => toggleSelectedId(classItem.id)}
-                    disabled={
-                      classItem.total === classItem.enrolledUserIds.length
-                    }
-                    className={cn('w-full mb-2')}
-                  >
-                    {(isChecked) => {
-                      return (
-                        <Card.wrapper
-                          className={cn(
-                            'border w-full',
-                            isChecked
-                              ? 'border-blue-500 hover:border-blue-600 shadow-md'
-                              : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                          )}
-                        >
-                          <CheckboxGroup.Icon
-                            id={classItem.id}
-                            isChecked={isChecked}
-                          />
-                          <ClassContentUI course={classItem} />
-                        </Card.wrapper>
-                      );
-                    }}
-                  </CheckboxGroup.Button>
-                ))}
+          <VirtualInfiniteScroller<ClassType>
+            items={flattenedClasses}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            hasNextPage={hasNextPage}
+            estimateSize={100}
+            containerClassName="w-full max-h-[400px]"
+            loadingFallback={
+              <div className="flex justify-center items-center h-[100px] w-full">
+                <Spinner />
               </div>
-            ))}
-          </CheckboxGroup.Wrapper>
-        </InfiniteScroller>
+            }
+            renderItem={(classItem) => (
+              <div className="mb-2">
+                <CheckboxGroup.Button
+                  isChecked={selectedIds.includes(classItem.id)}
+                  key={classItem.id}
+                  id={classItem.id}
+                  value={classItem.id}
+                  onClick={() => toggleSelectedId(classItem.id)}
+                  disabled={
+                    classItem.total === classItem.enrolledUserIds.length
+                  }
+                  className={cn('w-full')}
+                >
+                  {(isChecked) => {
+                    return (
+                      <Card.wrapper
+                        className={cn(
+                          'border w-full',
+                          isChecked
+                            ? 'border-blue-500 hover:border-blue-600 shadow-md'
+                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                        )}
+                      >
+                        <CheckboxGroup.Icon
+                          id={classItem.id}
+                          isChecked={isChecked}
+                        />
+                        <ClassContentUI course={classItem} />
+                      </Card.wrapper>
+                    );
+                  }}
+                </CheckboxGroup.Button>
+              </div>
+            )}
+          />
+        </CheckboxGroup.Wrapper>
       </div>
 
       <CreateEnrollClassesButton selectedCourseIds={[...selectedIds]} />
